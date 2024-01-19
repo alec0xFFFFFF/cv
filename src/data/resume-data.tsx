@@ -124,11 +124,7 @@ export const RESUME_DATA = {
       title: "Drawtf",
       techStack: ["Side Project", "React", "Python", "Deprecated"],
       description:
-        "Online Telestrations",
-      link: {
-        label: "github.com",
-        href: "https://jarocki.me/",
-      },
+        "Remote Telestrations with gif generation from the results",
     },
     {
       title: "Maze or Bowie",
