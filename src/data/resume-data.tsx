@@ -14,7 +14,7 @@ export const RESUME_DATA = {
   about:
     "Software Engineer, Full Stack & GenAI Application Layer",
   summary:
-    "As a Full Stack Engineer, I have successfully taken multiple products from 0 to 1. I lead teams effectively, ensuring an environment where people can do their best work. Currently, I work mostly with TypeScript, React, Node.js, and GraphQL. I have over 8 years of experience in working remotely with companies all around the world.",
+    "As a Full Stack Engineer, I have successfully taken multiple products from 0 to 1. I lead projects effectively, ensuring an environment where people can do their best work and we solve the most impactful problems. Currently, I work mostly with Java, Postgres, and LLMs on generative AI application layer features. I have over 6 years of experience and am looking to work on a greater scale.",
   avatarUrl: "https://avatars.githubusercontent.com/u/5921175?v=4",
   personalWebsiteUrl: "https://0xffffff.codes",
   contact: {
@@ -56,7 +56,7 @@ export const RESUME_DATA = {
       start: "2021",
       end: "current",
       description:
-        "Implemented new features, led squad, worked on improving the way developers ship the code, started migration from Emotion to Tailwind CSS and more. Technologies: React, TypeScript, GraphQL",
+        "Implemented new features, planned and designed WHOOP Coach Generative AI chat. Worked on Growth and Monetization working on full stack subscription management features. Technologies: Java, LLMs, Node, Python, React, TypeScript, Redis, REST APIs, Postgres, Stripe, Avalara, Shopify",
     },
     {
       company: "Cipher Tech Solutions",
@@ -67,7 +67,7 @@ export const RESUME_DATA = {
       start: "2017",
       end: "2021",
       description:
-        "Created Android mobile apps and led teams for companies like Vision Media, DKMS, or AAA. Built live streaming application for Evercast from scratch. Technologies: Android, Kotlin, React, TypeScript, GraphQL",
+        "Developed deadbox digital forensic software tools. Technologies: Python, Go, React, React Native",
     },
   ],
   skills: [
