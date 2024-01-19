@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { CommandMenu } from "@/components/command-menu";
 import { Metadata } from "next";
 import { Section } from "@/components/ui/section";
-import { GlobeIcon, MailIcon, PhoneIcon } from "lucide-react";
+import { GlobeIcon, MailIcon, PhoneIcon, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RESUME_DATA } from "@/data/resume-data";
 import { ProjectCard } from "@/components/project-card";
@@ -59,6 +59,18 @@ export default function Page() {
                   </a>
                 </Button>
               ) : null}
+              {RESUME_DATA.contact.resume ? (
+                <Button
+                  className="size-8"
+                  variant="outline"
+                  size="icon"
+                  asChild
+                >
+                  <a href={RESUME_DATA.contact.resume}>
+                    <FileText className="size-4" />
+                  </a>
+                </Button>
+              ) : null}
               {RESUME_DATA.contact.social.map((social) => (
                 <Button
                   key={social.name}
@@ -82,6 +94,12 @@ export default function Page() {
               {RESUME_DATA.contact.tel ? (
                 <a href={`tel:${RESUME_DATA.contact.tel}`}>
                   <span className="underline">{RESUME_DATA.contact.tel}</span>
+                </a>
+              ) : null}
+
+              {RESUME_DATA.contact.resume ? (
+                <a href={RESUME_DATA.contact.resume}>
+                  <span className="underline">{RESUME_DATA.contact.resume}</span>
                 </a>
               ) : null}
             </div>

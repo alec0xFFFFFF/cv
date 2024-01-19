@@ -20,6 +20,7 @@ export const RESUME_DATA = {
   contact: {
     email: "alec@0xffffff.codes",
     tel: "14159630614",
+    resume: "https://resume-alecw.s3.amazonaws.com/Alec_White_Resume_2024.pdf",
     social: [
       {
         name: "GitHub",
