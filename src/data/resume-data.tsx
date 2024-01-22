@@ -17,6 +17,7 @@ export const RESUME_DATA = {
     "As a Full Stack Engineer, I have successfully taken multiple products from 0 to 1. I lead projects effectively, ensuring an environment where people can do their best work and we solve the most impactful problems. Currently, I work mostly with Java, Postgres, and LLMs on generative AI application layer features. I have over 6 years of experience and am looking to work on a greater scale.",
   avatarUrl: "https://avatars.githubusercontent.com/u/5921175?v=4",
   personalWebsiteUrl: "https://0xffffff.codes",
+  blogLink: "https://blog.0xffffff.codes",
   contact: {
     email: "alec@0xffffff.codes",
     tel: "14159630614",

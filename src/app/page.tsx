@@ -20,6 +20,11 @@ export default function Page() {
       <section className="mx-auto w-full max-w-2xl space-y-8 bg-white print:space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex-1 space-y-1.5">
+            <div className="flex gap-x-1 pt-1 items-center font-mono text-sm text-muted-foreground print:hidden">
+              <p>HOME</p>
+              <p>|</p>
+              <a className="inline-flex gap-x-1.5 align-baseline leading-none hover:underline" target="_blank" href={RESUME_DATA.blogLink}>BLOG</a>
+            </div>
             <h1 className="text-2xl font-bold">{RESUME_DATA.name}</h1>
             <p className="max-w-md text-pretty font-mono text-sm text-muted-foreground">
               {RESUME_DATA.about}
