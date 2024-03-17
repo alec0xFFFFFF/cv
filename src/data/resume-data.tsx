@@ -9,6 +9,14 @@ import {
 } from "@/images/logos";
 import { GitHubIcon, LinkedInIcon, XIcon } from "@/components/icons";
 
+function getYearsSinceDec2017() {
+  const startDate = new Date('December 1, 2017');
+  const currentDate = new Date();
+  const differenceInTime = currentDate - startDate;
+  const differenceInYears = differenceInTime / (1000 * 60 * 60 * 24 * 365);
+  return Math.floor(differenceInYears);
+}
+
 export const RESUME_DATA = {
   name: "Alec White",
   initials: "AW",
@@ -17,7 +25,7 @@ export const RESUME_DATA = {
   about:
     "Software Engineer, Full Stack & GenAI Application Layer",
   summary:
-    "As a Full Stack Engineer, I have successfully taken multiple products from 0 to 1. I lead projects effectively, ensuring an environment where people can do their best work and we solve the most impactful problems. Currently, I work mostly with Java, Postgres, and LLMs on generative AI application layer features. I have over 6 years of experience and am looking to work on a greater scale.",
+    `As a Full Stack Engineer, I have successfully taken multiple products from 0 to 1. I lead projects effectively, ensuring an environment where people can do their best work and we solve the most impactful problems. Currently, I work mostly with Java, Postgres, and LLMs on generative AI application layer features. I have over ${getYearsSinceDec2017()} years of experience and am looking to work on a greater scale.`,
   avatarUrl: "https://avatars.githubusercontent.com/u/5921175?v=4",
   personalWebsiteUrl: "https://0xffffff.codes",
   blogLink: "https://blog.0xffffff.codes",
@@ -86,7 +94,9 @@ export const RESUME_DATA = {
     "Node.js",
     "Postgres",
     "SQL Server",
-    "Redis"
+    "Redis",
+    "Tailwind",
+    "Prompt Engineering"
   ],
   projects: [
     {
