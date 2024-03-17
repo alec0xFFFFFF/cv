@@ -23,7 +23,7 @@ export function ProjectCard({ title, description, tags, link, logo }: Props) {
   return (
     <Card className="flex flex-col overflow-hidden border border-muted p-3">
       <CardHeader className="">
-        {logo && <img src={logo.src} alt={formatString(`${title}-logo`)} />}
+        {logo && <img src={logo} alt={formatString(`${title}-logo`)} />}
         <div className="space-y-1">
           <CardTitle className="text-base">
             {link ? (
