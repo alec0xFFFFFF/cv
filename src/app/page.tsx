@@ -12,6 +12,18 @@ import { ProjectCard } from "@/components/project-card";
 export const metadata: Metadata = {
   title: `${RESUME_DATA.name} | ${RESUME_DATA.about}`,
   description: RESUME_DATA.summary,
+  // open graph metadata
+  'og:title': `${RESUME_DATA.name} | ${RESUME_DATA.about}`,
+  'og:description': RESUME_DATA.summary,
+  'og:type': 'website',
+  'og:url': 'https://0xffffff.codes',
+  'og:image': 'https://avatars.githubusercontent.com/u/5921175?v=4',
+  // Twitter Card metadata
+  'twitter:card': 'summary',
+  'twitter:title': `${RESUME_DATA.name} | ${RESUME_DATA.about}`,
+  'twitter:description': RESUME_DATA.summary,
+  'twitter:image': 'https://avatars.githubusercontent.com/u/5921175?v=4',
+  'twitter:creator': '@alec0xffffff',
 };
 
 function formatString(str) {
