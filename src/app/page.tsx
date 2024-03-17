@@ -14,6 +14,7 @@ interface ExtendedMetadata extends Metadata {
   'og:description'?: string;
   'og:type'?: string;
   'og:url'?: string;
+  'og:image'?: string;
   'twitter:card'?: string;
   'twitter:title'?: string;
   'twitter:description'?: string;
