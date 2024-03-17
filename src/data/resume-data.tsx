@@ -4,7 +4,8 @@ import {
   CipherTechLogo,
   WHOOPCoachLogo,
   PromptForgeLogo,
-  SloothsLogo
+  SloothsLogo,
+  SousLogo
 } from "@/images/logos";
 import { GitHubIcon, LinkedInIcon, XIcon } from "@/components/icons";
 
@@ -136,11 +137,16 @@ export const RESUME_DATA = {
       description: "Murder mystery game generator using LLMs",
     },
     {
-      title: "Sous.AI",
+      title: "Modify My Recipes",
       techStack: [
-        "Side Project", "iOS", "LLMs", "Python"
+        "Side Project", "iOS", "LLMs", "Python", "Remix"
       ],
-      description: "A platform to talk through recipes via LLM",
+      logo: SousLogo,
+      link: {
+        label: "modify my recipes",
+        href: "https://modifymy.recipes/",
+      },
+      description: "Modify recipes to fit your dietary restrictions (formerly Sous)",
     },
     {
       title: "Drawtf",

@@ -14,6 +14,10 @@ export const metadata: Metadata = {
   description: RESUME_DATA.summary,
 };
 
+function formatString(str) {
+  return str.toLowerCase().replace(/\s+/g, '-');
+}
+
 export default function Page() {
   return (
     <main className="container relative mx-auto scroll-my-12 overflow-auto p-4 print:p-12 md:p-16">
@@ -127,6 +131,7 @@ export default function Page() {
             return (
               <Card key={work.company}>
                 <CardHeader>
+                  {work.logo && <img className="max-w-xs" src={work.logo.src} alt={formatString(`${work.company}-logo`)} />}
                   <div className="flex items-center justify-between gap-x-2 text-base">
                     <h3 className="inline-flex items-center justify-center gap-x-1 font-semibold leading-none">
                       <a className="hover:underline" href={work.link}>
@@ -201,6 +206,7 @@ export default function Page() {
                   description={project.description}
                   tags={project.techStack}
                   link={"link" in project ? project.link.href : undefined}
+                  logo={"logo" in project ? project.logo : undefined}
                 />
               );
             })}
