@@ -39,7 +39,7 @@ export const metadata: ExtendedMetadata = {
   'twitter:creator': '@alec0xffffff',
 };
 
-function formatString(str) {
+function formatString(str: string) {
   return str.toLowerCase().replace(/\s+/g, '-');
 }
 

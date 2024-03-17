@@ -15,7 +15,7 @@ interface Props {
   logo?: string;
 }
 
-function formatString(str) {
+function formatString(str: string) {
   return str.toLowerCase().replace(/\s+/g, '-');
 }
 
