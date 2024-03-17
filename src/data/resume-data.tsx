@@ -10,8 +10,8 @@ import {
 import { GitHubIcon, LinkedInIcon, XIcon } from "@/components/icons";
 
 function getYearsSinceDec2017() {
-  const startDate = new Date('December 1, 2017');
-  const currentDate = new Date();
+  const startDate = new Date('December 1, 2017').getTime();
+  const currentDate = new Date().getTime();
   const differenceInTime = currentDate - startDate;
   const differenceInYears = differenceInTime / (1000 * 60 * 60 * 24 * 365);
   return Math.floor(differenceInYears);
