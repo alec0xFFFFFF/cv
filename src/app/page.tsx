@@ -9,7 +9,19 @@ import { Button } from "@/components/ui/button";
 import { RESUME_DATA } from "@/data/resume-data";
 import { ProjectCard } from "@/components/project-card";
 
-export const metadata: Metadata = {
+interface ExtendedMetadata extends Metadata {
+  'og:title'?: string;
+  'og:description'?: string;
+  'og:type'?: string;
+  'og:url'?: string;
+  'twitter:card'?: string;
+  'twitter:title'?: string;
+  'twitter:description'?: string;
+  'twitter:image'?: string;
+  'twitter:creator'?: string;
+}
+
+export const metadata: ExtendedMetadata = {
   title: `${RESUME_DATA.name} | ${RESUME_DATA.about}`,
   description: RESUME_DATA.summary,
   // open graph metadata
