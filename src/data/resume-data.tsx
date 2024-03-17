@@ -2,7 +2,9 @@ import {
   WHOOPLogo,
   MagsLogo,
   CipherTechLogo,
-  WHOOPCoachLogo
+  WHOOPCoachLogo,
+  PromptForgeLogo,
+  SloothsLogo
 } from "@/images/logos";
 import { GitHubIcon, LinkedInIcon, XIcon } from "@/components/icons";
 
@@ -79,6 +81,7 @@ export const RESUME_DATA = {
     "JavaScript",
     "TypeScript",
     "React/Next.js",
+    "Remix",
     "Node.js",
     "Postgres",
     "SQL Server",
@@ -109,18 +112,35 @@ export const RESUME_DATA = {
       },
     },
     {
+      title: "Prompt Forge",
+      techStack: [
+        "Side Project", "LLMs", "Remix"
+      ],
+      logo: PromptForgeLogo,
+      link: {
+        label: "prompt forge",
+        href: "https://promptforge.studio/",
+      },
+      description: "Platform to evaluate LLM Prompts",
+    },
+    {
+      title: "Slooths Party",
+      techStack: [
+        "Side Project", "LLMs", "Remix"
+      ],
+      logo: SloothsLogo,
+      link: {
+        label: "slooths party",
+        href: "https://slooths.party/",
+      },
+      description: "Murder mystery game generator using LLMs",
+    },
+    {
       title: "Sous.AI",
       techStack: [
         "Side Project", "iOS", "LLMs", "Python"
       ],
       description: "A platform to talk through recipes via LLM",
-    },
-    {
-      title: "Murder Mystery Generator",
-      techStack: [
-        "Side Project", "LLMs", "Python"
-      ],
-      description: "Murder mystery game generator using LLMs",
     },
     {
       title: "Drawtf",
