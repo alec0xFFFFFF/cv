@@ -5,7 +5,8 @@ import {
   WHOOPCoachLogo,
   PromptForgeLogo,
   SloothsLogo,
-  SousLogo
+  SanzaLogo,
+  CharacterAILogo
 } from "@/images/logos";
 import { GitHubIcon, LinkedInIcon, XIcon } from "@/components/icons";
 
@@ -61,13 +62,24 @@ export const RESUME_DATA = {
   ],
   work: [
     {
+      company: "Character.AI",
+      link: "https://character.ai",
+      badges: ["SF"],
+      title: "Member of the Technical Staff",
+      logo: CharacterAILogo,
+      start: "2024",
+      end: "current",
+      description:
+        "Working on the Character.AI platform",
+    },
+    {
       company: "WHOOP",
       link: "https://whoop.com",
       badges: ["Boston, MA"],
       title: "Software Engineer II",
       logo: WHOOPLogo,
       start: "2021",
-      end: "current",
+      end: "2024",
       description:
         "Implemented new features, planned and designed WHOOP Coach Generative AI chat. Worked on Growth and Monetization working on full stack subscription management features. Technologies: Java, LLMs, Node, Python, React, TypeScript, Redis, REST APIs, Postgres, Stripe, Avalara, Shopify",
     },
@@ -104,7 +116,7 @@ export const RESUME_DATA = {
       techStack: [
         "Java", "LLMs", "Redis",
       ],
-      description: "A platform to build and grow your online business",
+      description: "The first AI powered fitness wearable coach for health and performance",
       logo: WHOOPCoachLogo,
       link: {
         label: "WHOOP Coach blog post",
@@ -121,6 +133,18 @@ export const RESUME_DATA = {
         label: "mags.lol",
         href: "https://mags.lol/",
       },
+    },
+    {
+      title: "Sanza",
+      techStack: [
+        "Side Project", "iOS", "LLMs", "Python", "Remix", "React Native", "Expo", "Node.js", "PostgreSQL", "Stytch"
+      ],
+      logo: SanzaLogo,
+      link: {
+        label: "Sanza",
+        href: "https://sanza.cooking/",
+      },
+      description: "Modify recipes to fit your dietary restrictions",
     },
     {
       title: "Prompt Forge",
@@ -145,18 +169,6 @@ export const RESUME_DATA = {
         href: "https://slooths.party/",
       },
       description: "Murder mystery game generator using LLMs",
-    },
-    {
-      title: "Modify My Recipes",
-      techStack: [
-        "Side Project", "iOS", "LLMs", "Python", "Remix"
-      ],
-      logo: SousLogo,
-      link: {
-        label: "modify my recipes",
-        href: "https://modifymy.recipes/",
-      },
-      description: "Modify recipes to fit your dietary restrictions (formerly Sous)",
     },
     {
       title: "Drawtf",
