@@ -50,6 +50,11 @@ export const RESUME_DATA = {
         url: "https://x.com/alec0xffffff",
         icon: XIcon,
       },
+      {
+        name: "Photo Gallery",
+        url: "/photo-gallery",
+        icon: /* You can create a custom icon or use an existing one */,
+      },
     ],
   },
   education: [
