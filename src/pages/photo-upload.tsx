@@ -1,23 +1,32 @@
 import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
+import { API_BASE_URL } from '@/config';
+import Link from 'next/link';
 
-const API_BASE_URL = 'https://photolab-production.up.railway.app';
+interface UploadMetadata {
+  directory: string;
+  film_type: string;
+  date: string;
+  processing_lab: string;
+  location: string;
+  camera: string;
+  lens: string;
+}
 
 export default function PhotoUpload() {
-  const [apiKey, setApiKey] = useState('');
-  const [directory, setDirectory] = useState('alec');
-  const [filmType, setFilmType] = useState('');
-  const [date, setDate] = useState('');
-  const [processingLab, setProcessingLab] = useState('');
-  const [location, setLocation] = useState('');
-  const [camera, setCamera] = useState('');
-  const [lens, setLens] = useState('');
   const [files, setFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [metadata, setMetadata] = useState<UploadMetadata>({
+    directory: '',
+    film_type: '',
+    date: '',
+    processing_lab: '',
+    location: '',
+    camera: '',
+    lens: '',
+  });
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {'image/*': []},
@@ -26,144 +35,114 @@ export default function PhotoUpload() {
     }
   });
 
+  const handleMetadataChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setMetadata(prev => ({ ...prev, [name]: value }));
+  };
+
   const handleUpload = async () => {
+    if (files.length === 0) return;
+
+    setUploading(true);
     const formData = new FormData();
     files.forEach((file) => {
       formData.append('images', file);
     });
-    formData.append('directory', directory);
-    formData.append('film_type', filmType);
-    formData.append('date', date);
-    formData.append('processing_lab', processingLab);
-    formData.append('location', location);
-    formData.append('camera', camera);
-    formData.append('lens', lens);
+
+    // Append metadata to formData
+    Object.entries(metadata).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/upload`, {
+      const response = await fetch(`${API_BASE_URL}/upload`, {
         method: 'POST',
-        headers: {
-          'X-API-Key': apiKey,
-        },
         body: formData,
       });
 
       if (response.ok) {
         alert('Upload successful!');
         setFiles([]);
+        setMetadata({
+          directory: '',
+          film_type: '',
+          date: '',
+          processing_lab: '',
+          location: '',
+          camera: '',
+          lens: '',
+        });
       } else {
         alert('Upload failed. Please try again.');
       }
     } catch (error) {
       console.error('Error uploading:', error);
       alert('An error occurred during upload.');
+    } finally {
+      setUploading(false);
     }
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">Photo Upload</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="apiKey">API Key</Label>
-              <Input
-                id="apiKey"
-                type="password"
-                placeholder="Enter your API key"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-              />
-            </div>
-            
-            <div {...getRootProps()} className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-gray-400 transition-colors">
-              <input {...getInputProps()} />
-              <div className="flex flex-col items-center">
-                <Icon name="upload" className="text-gray-400 mb-2 w-12 h-12" />
-                <p className="text-gray-600">Drag + drop some images here, or click to select files</p>
-              </div>
-            </div>
-            
-            {files.length > 0 && (
-              <p className="text-sm text-gray-600">{files.length} file(s) selected</p>
-            )}
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="directory">Directory</Label>
-                <Input
-                  id="directory"
-                  placeholder="Directory"
-                  value={directory}
-                  onChange={(e) => setDirectory(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="filmType">Film Type</Label>
-                <Input
-                  id="filmType"
-                  placeholder="Film Type"
-                  value={filmType}
-                  onChange={(e) => setFilmType(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="date">Date</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="processingLab">Processing Lab</Label>
-                <Input
-                  id="processingLab"
-                  placeholder="Processing Lab"
-                  value={processingLab}
-                  onChange={(e) => setProcessingLab(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  placeholder="Location"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="camera">Camera</Label>
-                <Input
-                  id="camera"
-                  placeholder="Camera"
-                  value={camera}
-                  onChange={(e) => setCamera(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lens">Lens</Label>
-                <Input
-                  id="lens"
-                  placeholder="Lens"
-                  value={lens}
-                  onChange={(e) => setLens(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <Button onClick={handleUpload} className="w-full">
-              <Icon name="upload" className="mr-2" />
-              Upload Photos
-            </Button>
+    <div className="min-h-screen flex flex-col">
+      <header className="bg-white border-b border-gray-200 py-4">
+        <div className="container mx-auto px-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold">PHOTO GALLERY</h1>
+          <nav>
+            <Link href="/photo-gallery" className="text-gray-600 hover:text-gray-900">
+              Gallery
+            </Link>
+          </nav>
+        </div>
+      </header>
+      <main className="flex-grow container mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto">
+          <div {...getRootProps()} className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center cursor-pointer hover:border-gray-400 transition-colors">
+            <input {...getInputProps()} />
+            <Icon name="upload" className="text-gray-400 mb-4 w-16 h-16 mx-auto" />
+            <p className="text-xl text-gray-600">Drag & drop images here, or click to select files</p>
           </div>
-        </CardContent>
-      </Card>
+          
+          {files.length > 0 && (
+            <div className="mt-8">
+              <p className="text-lg text-gray-600 mb-4">{files.length} file(s) selected</p>
+              
+              {/* Metadata form */}
+              <div className="space-y-4 mb-4">
+                {Object.entries(metadata).map(([key, value]) => (
+                  <div key={key}>
+                    <label htmlFor={key} className="block text-sm font-medium text-gray-700">
+                      {key.replace('_', ' ').charAt(0).toUpperCase() + key.replace('_', ' ').slice(1)}
+                    </label>
+                    <input
+                      type={key === 'date' ? 'date' : 'text'}
+                      name={key}
+                      id={key}
+                      value={value}
+                      onChange={handleMetadataChange}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <Button onClick={handleUpload} className="w-full" disabled={uploading}>
+                {uploading ? (
+                  <Icon name="loader" className="animate-spin mr-2" />
+                ) : (
+                  <Icon name="upload" className="mr-2" />
+                )}
+                {uploading ? 'Uploading...' : 'Upload Photos'}
+              </Button>
+            </div>
+          )}
+        </div>
+      </main>
+      <footer className="bg-white border-t border-gray-200 py-4">
+        <div className="container mx-auto px-4 text-right">
+          <p className="text-sm text-gray-600">White, Alec</p>
+        </div>
+      </footer>
     </div>
   );
 }

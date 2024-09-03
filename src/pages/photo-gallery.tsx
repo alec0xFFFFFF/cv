@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useInView } from 'react-intersection-observer';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+// Remove the react-intersection-observer import
 import { Icon } from '@/components/ui/icon';
 import Link from 'next/link';
-import { Card, CardContent } from '@/components/ui/card';
+import { API_BASE_URL } from '@/config';
+// Add import for useInView hook from react-intersection-observer
+import { useInView } from 'react-intersection-observer';
 
 interface Photo {
   id: string;
@@ -12,13 +12,10 @@ interface Photo {
   title: string;
 }
 
-const API_BASE_URL = 'https://photolab-production.up.railway.app';
-const DEFAULT_SEARCH_PHRASES = ['beach', 'mountain', 'city', 'nature', 'portrait'];
+const defaultSearchTerms = ['nature', 'city', 'people', 'animals', 'technology', 'food'];
 
 export default function PhotoGallery() {
   const [photos, setPhotos] = useState<Photo[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filmType, setFilmType] = useState('');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -26,16 +23,21 @@ export default function PhotoGallery() {
     threshold: 0,
     rootMargin: '200px',
   });
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const fetchPhotos = useCallback(async (query = searchQuery, reset = false) => {
+  useEffect(() => {
+    const randomTerm = defaultSearchTerms[Math.floor(Math.random() * defaultSearchTerms.length)];
+    setSearchTerm(randomTerm);
+  }, []);
+
+  const fetchPhotos = useCallback(async () => {
     if (!hasMore || loading) return;
 
     setLoading(true);
     const params = new URLSearchParams({
-      query: query,
-      film_type: filmType,
-      page: reset ? '1' : page.toString(),
-      page_size: '20'
+      page: page.toString(),
+      page_size: '20',
+      query: searchTerm // Add the search term to the API request
     });
 
     try {
@@ -45,22 +47,18 @@ export default function PhotoGallery() {
       if (newPhotos.length === 0) {
         setHasMore(false);
       } else {
-        setPhotos((prevPhotos) => reset ? newPhotos : [...prevPhotos, ...newPhotos]);
-        setPage((prevPage) => reset ? 2 : prevPage + 1);
+        setPhotos((prevPhotos) => [...prevPhotos, ...newPhotos]);
+        setPage((prevPage) => prevPage + 1);
       }
     } catch (error) {
       console.error('Error fetching photos:', error);
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, filmType, page, hasMore, loading]);
+  }, [page, hasMore, loading, searchTerm]); // Add searchTerm to the dependency array
 
   useEffect(() => {
-    if (searchQuery === '') {
-      const randomPhrase = DEFAULT_SEARCH_PHRASES[Math.floor(Math.random() * DEFAULT_SEARCH_PHRASES.length)];
-      setSearchQuery(randomPhrase);
-      fetchPhotos(randomPhrase, true);
-    }
+    fetchPhotos();
   }, []);
 
   useEffect(() => {
@@ -69,68 +67,44 @@ export default function PhotoGallery() {
     }
   }, [inView, fetchPhotos]);
 
-  const handleSearch = () => {
-    setPhotos([]);
-    setPage(1);
-    setHasMore(true);
-    fetchPhotos(searchQuery, true);
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
-
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">Photo Gallery</h1>
-      <Card className="mb-8">
-        <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="relative w-full sm:w-1/3">
-              <Input
-                type="text"
-                placeholder="Search photos..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="pl-10"
-              />
-              <Icon name="search" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            </div>
-            <Input
-              type="text"
-              placeholder="Film Type"
-              value={filmType}
-              onChange={(e) => setFilmType(e.target.value)}
-              className="w-full sm:w-1/3"
-            />
-            <Button onClick={handleSearch} className="w-full sm:w-auto">
-              <Icon name="search" className="mr-2" />
-              Search
-            </Button>
-            <Link href="/photo-upload" className="w-full sm:w-auto">
-              <Button variant="outline" className="w-full">
-                <Icon name="upload" className="mr-2" />
-                Upload Photos
-              </Button>
+    <div className="min-h-screen flex flex-col">
+      <header className="bg-white border-b border-gray-200 py-4">
+        <div className="container mx-auto px-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold">PHOTO GALLERY</h1>
+          <nav>
+            <Link href="/photo-upload" className="text-gray-600 hover:text-gray-900">
+              Upload
             </Link>
-          </div>
-        </CardContent>
-      </Card>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {photos.map((photo) => (
-          <Card key={photo.id} className="overflow-hidden transition-transform duration-300 hover:scale-105">
-            <CardContent className="p-0">
-              <img src={photo.url} alt={photo.title} className="w-full h-64 object-cover" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      {hasMore && <div ref={ref} className="h-20 flex items-center justify-center">
-        {loading && <Icon name="loader" className="animate-spin" />}
-      </div>}
+          </nav>
+        </div>
+      </header>
+      <main className="flex-grow container mx-auto px-4 py-8">
+        <div className="mb-4">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search photos..."
+            className="w-full p-2 border border-gray-300 rounded"
+          />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {photos.map((photo) => (
+            <div key={photo.id} className="aspect-square">
+              <img src={photo.url} alt={photo.title} className="w-full h-full object-cover" />
+            </div>
+          ))}
+        </div>
+        {hasMore && <div ref={ref} className="h-20 flex items-center justify-center">
+          {loading && <Icon name="loader" className="animate-spin" />}
+        </div>}
+      </main>
+      <footer className="bg-white border-t border-gray-200 py-4">
+        <div className="container mx-auto px-4 text-right">
+          <p className="text-sm text-gray-600">White, Alec</p>
+        </div>
+      </footer>
     </div>
   );
 }
