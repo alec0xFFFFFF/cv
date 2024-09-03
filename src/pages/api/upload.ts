@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const form = new multiparty.Form();
 
   try {
-    const [fields, files] = await new Promise<[multiparty.Fields, multiparty.Files]>((resolve, reject) => {
+    const [fields, files] = await new Promise<[{ [key: string]: string[] }, { [key: string]: multiparty.File[] }]>((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
         if (err) reject(err);
         resolve([fields, files]);
