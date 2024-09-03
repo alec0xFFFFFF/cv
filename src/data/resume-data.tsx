@@ -126,6 +126,9 @@ export const RESUME_DATA = {
     },
     {
       title: "Photo Gallery",
+      techStack: [
+        "Next.js", "Tailwind CSS", "React", "Gemini", "pgVector"
+      ],
       description: "A photo gallery built with Next.js and Tailwind CSS",
       logo: PhotoGalleryLogo,
       link: {
