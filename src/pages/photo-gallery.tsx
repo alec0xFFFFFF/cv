@@ -57,11 +57,11 @@ export default function PhotoGallery() {
     }
   }, [inView]);
 
-  const handleSearch = (query = searchQuery) => {
+  const handleSearch = (event?: React.MouseEvent<HTMLButtonElement>) => {
     setPhotos([]);
     setPage(1);
     setHasMore(true);
-    fetchPhotos(query);
+    fetchPhotos(searchQuery);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
