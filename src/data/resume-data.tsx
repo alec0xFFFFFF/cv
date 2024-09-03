@@ -51,11 +51,6 @@ export const RESUME_DATA = {
         url: "https://x.com/alec0xffffff",
         icon: XIcon,
       },
-      {
-        name: "Photo Gallery",
-        url: "/photo-gallery",
-        icon: PhotoGalleryLogo,
-      },
     ],
   },
   education: [
@@ -127,6 +122,15 @@ export const RESUME_DATA = {
       link: {
         label: "WHOOP Coach blog post",
         href: "https://www.whoop.com/us/en/thelocker/introducing-whoop-coach-powered-by-openai/",
+      },
+    },
+    {
+      title: "Photo Gallery",
+      description: "A photo gallery built with Next.js and Tailwind CSS",
+      logo: PhotoGalleryLogo,
+      link: {
+        label: "Photo Gallery",
+        href: "https://0xffffff.codes/photo-gallery",
       },
     },
     {
