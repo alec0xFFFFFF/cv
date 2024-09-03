@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import formidable from 'formidable';
-import fs from 'fs';
+import multiparty from 'multiparty';
 
 export const config = {
   api: {
@@ -18,13 +17,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const form = new formidable.IncomingForm();
-  form.multiples = true;
+  const form = new multiparty.Form();
 
-  form.parse(req, async (err, fields, files) => {
-    if (err) {
-      return res.status(500).json({ error: 'Error parsing form data' });
-    }
+  try {
+    const [fields, files] = await new Promise<[multiparty.Fields, multiparty.Files]>((resolve, reject) => {
+      form.parse(req, (err, fields, files) => {
+        if (err) reject(err);
+        resolve([fields, files]);
+      });
+    });
 
     // Here you would typically process the files and save them to your storage
     // For this example, we'll just log the file information
@@ -35,5 +36,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     res.status(200).json({ message: 'Upload successful' });
-  });
+  } catch (error) {
+    console.error('Error parsing form data:', error);
+    res.status(500).json({ error: 'Error parsing form data' });
+  }
 }
