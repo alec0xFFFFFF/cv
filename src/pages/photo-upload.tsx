@@ -68,7 +68,7 @@ export default function PhotoUpload() {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="apiKey">API Key</Label>
               <Input
                 id="apiKey"
@@ -92,7 +92,7 @@ export default function PhotoUpload() {
             )}
 
             <div className="grid grid-cols-2 gap-4">
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="directory">Directory</Label>
                 <Input
                   id="directory"
@@ -101,7 +101,7 @@ export default function PhotoUpload() {
                   onChange={(e) => setDirectory(e.target.value)}
                 />
               </div>
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="filmType">Film Type</Label>
                 <Input
                   id="filmType"
@@ -110,7 +110,7 @@ export default function PhotoUpload() {
                   onChange={(e) => setFilmType(e.target.value)}
                 />
               </div>
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="date">Date</Label>
                 <Input
                   id="date"
@@ -119,7 +119,7 @@ export default function PhotoUpload() {
                   onChange={(e) => setDate(e.target.value)}
                 />
               </div>
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="processingLab">Processing Lab</Label>
                 <Input
                   id="processingLab"
@@ -128,7 +128,7 @@ export default function PhotoUpload() {
                   onChange={(e) => setProcessingLab(e.target.value)}
                 />
               </div>
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="location">Location</Label>
                 <Input
                   id="location"
@@ -137,7 +137,7 @@ export default function PhotoUpload() {
                   onChange={(e) => setLocation(e.target.value)}
                 />
               </div>
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="camera">Camera</Label>
                 <Input
                   id="camera"
@@ -146,7 +146,7 @@ export default function PhotoUpload() {
                   onChange={(e) => setCamera(e.target.value)}
                 />
               </div>
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="lens">Lens</Label>
                 <Input
                   id="lens"
