@@ -53,7 +53,6 @@ export const RESUME_DATA = {
       {
         name: "Photo Gallery",
         url: "/photo-gallery",
-        icon: /* You can create a custom icon or use an existing one */,
       },
     ],
   },
