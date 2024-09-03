@@ -3,6 +3,8 @@ import { useDropzone } from 'react-dropzone';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 
 const API_BASE_URL = 'https://photolab-production.up.railway.app';
 
@@ -59,71 +61,109 @@ export default function PhotoUpload() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-4">Photo Upload</h1>
-      <Input
-        type="password"
-        placeholder="API Key"
-        value={apiKey}
-        onChange={(e) => setApiKey(e.target.value)}
-        className="mb-4"
-      />
-      <div {...getRootProps()} className="border-2 border-dashed border-gray-300 p-8 mb-4 cursor-pointer">
-        <input {...getInputProps()} />
-        <div className="flex flex-col items-center">
-          <Icon name="upload" className="text-gray-400 mb-2" />
-          <p>Drag + drop some images here, or click to select files</p>
-        </div>
-      </div>
-      {files.length > 0 && (
-        <p className="mb-4">{files.length} file(s) selected</p>
-      )}
-      <Input
-        placeholder="Directory"
-        value={directory}
-        onChange={(e) => setDirectory(e.target.value)}
-        className="mb-4"
-      />
-      <Input
-        placeholder="Film Type"
-        value={filmType}
-        onChange={(e) => setFilmType(e.target.value)}
-        className="mb-4"
-      />
-      <Input
-        type="date"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-        className="mb-4"
-      />
-      <Input
-        placeholder="Processing Lab"
-        value={processingLab}
-        onChange={(e) => setProcessingLab(e.target.value)}
-        className="mb-4"
-      />
-      <Input
-        placeholder="Location"
-        value={location}
-        onChange={(e) => setLocation(e.target.value)}
-        className="mb-4"
-      />
-      <Input
-        placeholder="Camera"
-        value={camera}
-        onChange={(e) => setCamera(e.target.value)}
-        className="mb-4"
-      />
-      <Input
-        placeholder="Lens"
-        value={lens}
-        onChange={(e) => setLens(e.target.value)}
-        className="mb-4"
-      />
-      <Button onClick={handleUpload}>
-        <Icon name="upload" className="mr-2" />
-        Upload
-      </Button>
+    <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold">Photo Upload</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <div>
+              <Label htmlFor="apiKey">API Key</Label>
+              <Input
+                id="apiKey"
+                type="password"
+                placeholder="Enter your API key"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+              />
+            </div>
+            
+            <div {...getRootProps()} className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-gray-400 transition-colors">
+              <input {...getInputProps()} />
+              <div className="flex flex-col items-center">
+                <Icon name="upload" className="text-gray-400 mb-2 w-12 h-12" />
+                <p className="text-gray-600">Drag + drop some images here, or click to select files</p>
+              </div>
+            </div>
+            
+            {files.length > 0 && (
+              <p className="text-sm text-gray-600">{files.length} file(s) selected</p>
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="directory">Directory</Label>
+                <Input
+                  id="directory"
+                  placeholder="Directory"
+                  value={directory}
+                  onChange={(e) => setDirectory(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="filmType">Film Type</Label>
+                <Input
+                  id="filmType"
+                  placeholder="Film Type"
+                  value={filmType}
+                  onChange={(e) => setFilmType(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="date">Date</Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="processingLab">Processing Lab</Label>
+                <Input
+                  id="processingLab"
+                  placeholder="Processing Lab"
+                  value={processingLab}
+                  onChange={(e) => setProcessingLab(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  placeholder="Location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="camera">Camera</Label>
+                <Input
+                  id="camera"
+                  placeholder="Camera"
+                  value={camera}
+                  onChange={(e) => setCamera(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="lens">Lens</Label>
+                <Input
+                  id="lens"
+                  placeholder="Lens"
+                  value={lens}
+                  onChange={(e) => setLens(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <Button onClick={handleUpload} className="w-full">
+              <Icon name="upload" className="mr-2" />
+              Upload Photos
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
