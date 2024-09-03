@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Icon } from '@/components/ui/icon';
 import Link from 'next/link';
 
 interface Photo {
@@ -73,14 +74,17 @@ export default function PhotoGallery() {
     <div className="container mx-auto px-4">
       <h1 className="text-2xl font-bold my-4">Photo Gallery</h1>
       <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2">
-        <Input
-          type="text"
-          placeholder="Search photos..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyPress={handleKeyPress}
-          className="w-full sm:w-1/3"
-        />
+        <div className="relative w-full sm:w-1/3">
+          <Input
+            type="text"
+            placeholder="Search photos..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={handleKeyPress}
+            className="pl-10"
+          />
+          <Icon name="search" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        </div>
         <Input
           type="text"
           placeholder="Film Type"
@@ -88,9 +92,15 @@ export default function PhotoGallery() {
           onChange={(e) => setFilmType(e.target.value)}
           className="w-full sm:w-1/3"
         />
-        <Button onClick={handleSearch} className="w-full sm:w-auto">Search</Button>
+        <Button onClick={handleSearch} className="w-full sm:w-auto">
+          <Icon name="search" className="mr-2" />
+          Search
+        </Button>
         <Link href="/photo-upload" className="w-full sm:w-auto">
-          <Button variant="outline" className="w-full">Upload Photos</Button>
+          <Button variant="outline" className="w-full">
+            <Icon name="upload" className="mr-2" />
+            Upload Photos
+          </Button>
         </Link>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

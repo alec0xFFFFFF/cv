@@ -8,6 +8,7 @@ import { GlobeIcon, MailIcon, PhoneIcon, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RESUME_DATA } from "@/data/resume-data";
 import { ProjectCard } from "@/components/project-card";
+import { Icon } from '@/components/ui/icon';
 
 interface ExtendedMetadata extends Metadata {
   'og:title'?: string;
@@ -114,7 +115,7 @@ export default function Page() {
                   asChild
                 >
                   <a href={social.url}>
-                    <social.icon className="size-4" />
+                    <Icon name={social.icon} className="size-4" />
                   </a>
                 </Button>
               ))}

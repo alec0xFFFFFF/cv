@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Icon } from '@/components/ui/icon';
 
 const API_BASE_URL = 'https://photolab-production.up.railway.app';
 
@@ -69,7 +70,10 @@ export default function PhotoUpload() {
       />
       <div {...getRootProps()} className="border-2 border-dashed border-gray-300 p-8 mb-4 cursor-pointer">
         <input {...getInputProps()} />
-        <p>Drag + drop some images here, or click to select files</p>
+        <div className="flex flex-col items-center">
+          <Icon name="upload" className="text-gray-400 mb-2" />
+          <p>Drag + drop some images here, or click to select files</p>
+        </div>
       </div>
       {files.length > 0 && (
         <p className="mb-4">{files.length} file(s) selected</p>
@@ -116,7 +120,10 @@ export default function PhotoUpload() {
         onChange={(e) => setLens(e.target.value)}
         className="mb-4"
       />
-      <Button onClick={handleUpload}>Upload</Button>
+      <Button onClick={handleUpload}>
+        <Icon name="upload" className="mr-2" />
+        Upload
+      </Button>
     </div>
   );
 }
