@@ -7,6 +7,7 @@ import SloothsLogo from "./SloothsLogo.png";
 import SousLogo from "./SousLogo.png";
 import SanzaLogo from "./SanzaCookingLogo.jpg";
 import CharacterAILogo from "./CharacterAILogo.png";
+import PhotoGalleryLogo from "./PhotoGalleryLogo.png";
 
 export {
   CipherTechLogo,
@@ -17,5 +18,6 @@ export {
   SloothsLogo,
   SousLogo,
   SanzaLogo,
-  CharacterAILogo
+  CharacterAILogo,
+  PhotoGalleryLogo
 };

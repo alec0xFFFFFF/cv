@@ -6,7 +6,8 @@ import {
   PromptForgeLogo,
   SloothsLogo,
   SanzaLogo,
-  CharacterAILogo
+  CharacterAILogo,
+  PhotoGalleryLogo
 } from "@/images/logos";
 import { GitHubIcon, LinkedInIcon, XIcon } from "@/components/icons";
 
@@ -53,6 +54,7 @@ export const RESUME_DATA = {
       {
         name: "Photo Gallery",
         url: "/photo-gallery",
+        icon: PhotoGalleryLogo,
       },
     ],
   },
