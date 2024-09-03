@@ -3,6 +3,8 @@ import { useDropzone } from 'react-dropzone';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
+const API_BASE_URL = 'https://photolab-production.up.railway.app';
+
 export default function PhotoUpload() {
   const [apiKey, setApiKey] = useState('');
   const [directory, setDirectory] = useState('alec');
@@ -35,7 +37,7 @@ export default function PhotoUpload() {
     formData.append('lens', lens);
 
     try {
-      const response = await fetch('/api/upload', {
+      const response = await fetch(`${API_BASE_URL}/api/upload`, {
         method: 'POST',
         headers: {
           'X-API-Key': apiKey,
