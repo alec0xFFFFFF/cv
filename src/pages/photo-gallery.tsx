@@ -26,7 +26,7 @@ export default function PhotoGallery() {
     if (searchQuery === '') {
       const randomPhrase = DEFAULT_SEARCH_PHRASES[Math.floor(Math.random() * DEFAULT_SEARCH_PHRASES.length)];
       setSearchQuery(randomPhrase);
-      handleSearch(randomPhrase);
+      fetchPhotos(randomPhrase);
     }
   }, []);
 
@@ -57,16 +57,16 @@ export default function PhotoGallery() {
     }
   }, [inView]);
 
-  const handleSearch = (event?: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSearch = (event?: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
     setPhotos([]);
     setPage(1);
     setHasMore(true);
-    fetchPhotos(searchQuery);
+    fetchPhotos();
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      handleSearch();
+      handleSearch(e);
     }
   };
 
