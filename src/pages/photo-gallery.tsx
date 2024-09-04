@@ -7,9 +7,23 @@ import { API_BASE_URL } from '@/config';
 import { useInView } from 'react-intersection-observer';
 
 interface Photo {
-  id: string;
-  url: string;
-  title: string;
+  description: string;
+  filename: string;
+  film_format: string;
+  film_stock: string;
+  similarity_score: number;
+}
+
+interface ApiResponse {
+  images: Photo[];
+  pagination: {
+    has_next: boolean;
+    has_prev: boolean;
+    page: number;
+    page_size: number;
+    total_count: number;
+    total_pages: number;
+  };
 }
 
 const defaultSearchTerms = ['nature', 'city', 'people', 'animals', 'technology', 'food'];
@@ -37,25 +51,26 @@ export default function PhotoGallery() {
     const params = new URLSearchParams({
       page: page.toString(),
       page_size: '20',
-      query: searchTerm // Add the search term to the API request
+      query: searchTerm
     });
 
     try {
       const response = await fetch(`${API_BASE_URL}/search?${params}`);
-      const newPhotos = await response.json();
+      const data: ApiResponse = await response.json();
       
-      if (newPhotos.length === 0) {
+      if (data.images.length === 0) {
         setHasMore(false);
       } else {
-        setPhotos((prevPhotos) => [...prevPhotos, ...newPhotos]);
+        setPhotos((prevPhotos) => [...prevPhotos, ...data.images]);
         setPage((prevPage) => prevPage + 1);
+        setHasMore(data.pagination.has_next);
       }
     } catch (error) {
       console.error('Error fetching photos:', error);
     } finally {
       setLoading(false);
     }
-  }, [page, hasMore, loading, searchTerm]); // Add searchTerm to the dependency array
+  }, [page, hasMore, loading, searchTerm]);
 
   useEffect(() => {
     fetchPhotos();
@@ -90,9 +105,9 @@ export default function PhotoGallery() {
           />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {photos.map((photo) => (
-            <div key={photo.id} className="aspect-square">
-              <img src={photo.url} alt={photo.title} className="w-full h-full object-cover" />
+          {photos.map((photo, index) => (
+            <div key={index} className="aspect-square">
+              <img src={photo.filename} alt={photo.description} className="w-full h-full object-cover" />
             </div>
           ))}
         </div>
