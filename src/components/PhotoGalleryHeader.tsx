@@ -14,15 +14,15 @@ export const PhotoGalleryHeader: React.FC<PhotoGalleryHeaderProps> = ({
   searchTerm,
 }) => {
   return (
-    <header className="bg-white border-b border-gray-200 py-6 px-4">
+    <header className="bg-white border-b border-gray-200">
       <Navigation currentPage={currentPage} />
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-light mb-6 text-center text-gray-800 tracking-wide">
+        <h1 className="text-3xl font-light text-center text-gray-800 tracking-wide py-2">
           PHOTO GALLERY
         </h1>
 
         {currentPage === 'photo-gallery' && (
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center py-2">
             <div className="relative w-full max-w-md">
               <input
                 type="text"
