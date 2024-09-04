@@ -392,6 +392,7 @@ export default function PhotoUpload() {
               <Button
                 onClick={() => fileInputRef.current?.click()} // Open file picker
                 className="mt-4"
+                disabled={uploading}
               >
                 Upload Another
               </Button>

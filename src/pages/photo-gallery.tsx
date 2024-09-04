@@ -73,14 +73,6 @@ export default function PhotoGallery() {
     [debounce]
   );
 
-  const handleSearch = useCallback(
-    (value: string) => {
-      setSearchTerm(value);
-      debouncedSetSearchTerm(value);
-    },
-    [debouncedSetSearchTerm]
-  );
-
   const fetchPhotos = useCallback(async () => {
     if (loading || debouncedSearchTerm.trim() === '') return;
 
@@ -138,10 +130,22 @@ export default function PhotoGallery() {
     setSelectedPhoto(null);
   }, []);
 
+  useEffect(() => {
+    fetchPhotos();
+  }, []);
+
+  const handleSearchWithTracking = useCallback(
+    (value: string) => {
+      setSearchTerm(value);
+      debouncedSetSearchTerm(value);
+    },
+    [debouncedSetSearchTerm]
+  );
+
   return (
     <div className="min-h-screen flex flex-col">
       <PhotoGalleryHeader
-        onSearch={handleSearch}
+        onSearch={handleSearchWithTracking}
         currentPage="photo-gallery"
         searchTerm={searchTerm}
       />
@@ -153,7 +157,7 @@ export default function PhotoGallery() {
         ) : (
           <>
             {photos.length > 0 ? (
-              <div className="min-h-screen bg-gray-100 py-8">
+              <div className="min-h-screen bg-gray-100 py-4 px-4">
                 <ImageGrid photos={photos} onImageClick={handleImageClick} />
               </div>
             ) : (
