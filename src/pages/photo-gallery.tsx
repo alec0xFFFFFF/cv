@@ -41,6 +41,7 @@ export default function PhotoGallery() {
   useEffect(() => {
     const randomTerm = defaultSearchTerms[Math.floor(Math.random() * defaultSearchTerms.length)];
     setSearchTerm(randomTerm);
+    setDebouncedSearchTerm(randomTerm); // Set the debounced term immediately
   }, []);
 
   const debounce = useCallback((func: (...args: any[]) => void, delay: number) => {
@@ -126,8 +127,13 @@ export default function PhotoGallery() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {photos.map((photo, index) => (
-            <div key={index} className="aspect-square">
-              <img src={photo.filename} alt={photo.description} className="w-full h-full object-cover" />
+            <div key={index} className="aspect-square w-full">
+              <img 
+                src={photo.filename} 
+                alt={photo.description} 
+                className="w-full h-full object-cover"
+                style={{ width: 'calc(100vw / 3 - 2rem)', maxWidth: '100%' }}
+              />
             </div>
           ))}
         </div>
