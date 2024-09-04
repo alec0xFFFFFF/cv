@@ -125,15 +125,16 @@ export default function PhotoGallery() {
             className="w-full p-2 border border-gray-300 rounded"
           />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="flex flex-wrap gap-4">
           {photos.map((photo, index) => (
-            <div key={index} className="aspect-square w-full">
-              <img 
-                src={photo.filename} 
-                alt={photo.description} 
-                className="w-full h-full object-cover"
-                style={{ width: 'calc(100vw / 3 - 2rem)', maxWidth: '100%' }}
-              />
+            <div key={index} className="flex-grow-0 flex-shrink-0 w-[calc(33.333%-1rem)] min-w-[250px] max-w-[400px]">
+              <div className="aspect-square">
+                <img 
+                  src={photo.filename} 
+                  alt={photo.description} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
           ))}
         </div>
