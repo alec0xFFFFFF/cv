@@ -17,7 +17,23 @@ interface UploadMetadata {
   location: string;
   camera: string;
   lens: string;
+  password: string; // Add this line
 }
+
+const cameraOptions = ['Mamiya C330', 'Leica M6', 'Holga 120N'];
+const lensOptions = [
+  'Mamiya Sekor 80mm f2.8',
+  'Leica Summicron 35mm',
+  'unknown',
+];
+const filmStockOptions = [
+  'Ilford HP5 400',
+  'Kodak Portra 400',
+  'Kodak Portra 160',
+  'Kodak Portra 800',
+  'Lomography',
+];
+const filmFormatOptions = ['120', '35mm', '35mm in medium format camera'];
 
 export default function PhotoUpload() {
   const [files, setFiles] = useState<File[]>([]);
@@ -25,13 +41,14 @@ export default function PhotoUpload() {
   const [isDragging, setIsDragging] = useState(false);
   const [metadata, setMetadata] = useState<UploadMetadata>({
     directory: 'alec',
-    film_format: '120',
-    film_stock: 'Ilford HP5 40',
-    date: new Date().toISOString().split('T')[0], // todo today
+    film_format: filmFormatOptions[0],
+    film_stock: filmStockOptions[0],
+    date: new Date().toISOString().split('T')[0],
     processing_lab: 'Photoworks',
     location: 'SF',
-    camera: 'Mamiya C330',
-    lens: 'Mamiya Sekor 80mm f2.8',
+    camera: cameraOptions[0],
+    lens: lensOptions[0],
+    password: '',
   });
 
   const onDragEnter = useCallback((e: React.DragEvent) => {
@@ -70,7 +87,9 @@ export default function PhotoUpload() {
     setFiles((prevFiles) => prevFiles.filter((file) => file !== fileToRemove));
   }, []);
 
-  const handleMetadataChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMetadataChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setMetadata((prev) => ({ ...prev, [name]: value }));
   };
@@ -98,6 +117,9 @@ export default function PhotoUpload() {
     try {
       const response = await fetch(`${API_BASE_URL}/upload`, {
         method: 'POST',
+        headers: {
+          'X-API-Key': metadata.password,
+        },
         body: formData,
       });
 
@@ -113,6 +135,7 @@ export default function PhotoUpload() {
           location: '',
           camera: '',
           lens: '',
+          password: '',
         });
       } else {
         alert('Upload failed. Please try again.');
@@ -204,16 +227,57 @@ export default function PhotoUpload() {
                       {key.replace('_', ' ').charAt(0).toUpperCase() +
                         key.replace('_', ' ').slice(1)}
                     </label>
-                    <input
-                      type={key === 'date' ? 'date' : 'text'}
-                      name={key}
-                      id={key}
-                      value={value}
-                      onChange={handleMetadataChange}
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    />
+                    {['camera', 'lens', 'film_stock', 'film_format'].includes(
+                      key
+                    ) ? (
+                      <select
+                        name={key}
+                        id={key}
+                        value={value}
+                        onChange={handleMetadataChange}
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      >
+                        {(key === 'camera'
+                          ? cameraOptions
+                          : key === 'lens'
+                            ? lensOptions
+                            : key === 'film_stock'
+                              ? filmStockOptions
+                              : filmFormatOptions
+                        ).map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type={key === 'date' ? 'date' : 'text'}
+                        name={key}
+                        id={key}
+                        value={value}
+                        onChange={handleMetadataChange}
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      />
+                    )}
                   </div>
                 ))}
+                <div key="password">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    id="password"
+                    value={metadata.password}
+                    onChange={handleMetadataChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  />
+                </div>
               </div>
 
               <Button
