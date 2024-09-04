@@ -1,9 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-// Remove the react-intersection-observer import
 import { Icon } from '@/components/ui/icon';
 import Link from 'next/link';
-import { API_BASE_URL } from '@/config';
-// Add import for useInView hook from react-intersection-observer
 import { useInView } from 'react-intersection-observer';
 
 interface Photo {
@@ -75,7 +72,8 @@ export default function PhotoGallery() {
     });
 
     try {
-      const response = await fetch(`${API_BASE_URL}/search?${params}`);
+      // Update this line to use the new API route
+      const response = await fetch(`/api/search?${params}`);
       const data: ApiResponse = await response.json();
       
       if (data.images.length === 0) {
