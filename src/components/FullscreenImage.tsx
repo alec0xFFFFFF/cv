@@ -1,11 +1,9 @@
 import React from 'react';
 import { X } from 'lucide-react';
+import { Photo } from './types';
 
 interface FullscreenImageProps {
-  photo: {
-    filename: string;
-    description: string;
-  };
+  photo: Photo;
   onClose: () => void;
 }
 
