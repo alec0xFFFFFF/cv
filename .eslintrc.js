@@ -1,15 +1,21 @@
 module.exports = {
-  // ... other configurations
+  parser: '@typescript-eslint/parser',
   extends: [
-    // ... other extends
-    'plugin:prettier/recommended',
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
+    'next/core-web-vitals',
   ],
-  plugins: [
-    // ... other plugins
-    'prettier',
-  ],
-  rules: {
-    // ... other rules
-    'prettier/prettier': 'error',
+  plugins: ['@typescript-eslint', 'react'],
+  env: {
+    browser: true,
+    es2021: true,
+    node: true,
+  },
+  settings: {
+    react: {
+      version: 'detect',
+    },
   },
 };

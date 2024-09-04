@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
@@ -22,14 +24,14 @@ export default function PhotoUpload() {
   const [uploading, setUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [metadata, setMetadata] = useState<UploadMetadata>({
-    directory: '',
-    film_format: '',
-    film_stock: '',
-    date: '',
-    processing_lab: '',
-    location: '',
-    camera: '',
-    lens: '',
+    directory: 'alec',
+    film_format: '120',
+    film_stock: 'Ilford HP5 40',
+    date: new Date().toISOString().split('T')[0], // todo today
+    processing_lab: 'Photoworks',
+    location: 'SF',
+    camera: 'Mamiya C330',
+    lens: 'Mamiya Sekor 80mm f2.8',
   });
 
   const onDragEnter = useCallback((e: React.DragEvent) => {

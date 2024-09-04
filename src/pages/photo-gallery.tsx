@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Icon } from '@/components/ui/icon';
 import { useInView } from 'react-intersection-observer';
@@ -40,7 +42,6 @@ export default function PhotoGallery() {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
 
   useEffect(() => {
@@ -51,8 +52,10 @@ export default function PhotoGallery() {
   }, []);
 
   const debounce = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (func: (...args: any[]) => void, delay: number) => {
       let timeoutId: NodeJS.Timeout | null = null;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (...args: any[]) => {
         if (timeoutId) clearTimeout(timeoutId);
         timeoutId = setTimeout(() => func(...args), delay);
