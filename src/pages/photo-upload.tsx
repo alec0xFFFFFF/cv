@@ -26,9 +26,9 @@ interface UploadResponse {
     categories: string[];
     description: string;
     descriptive_words: string[];
-    dominant_colors?: string[]; // Optional field
-    mood?: string; // Optional field
-    quality_grade?: string;
+    dominant_colors?: string[];
+    mood?: string;
+    quality_grade?: number;
   };
   filename: string;
   message: string;
@@ -337,17 +337,19 @@ export default function PhotoUpload() {
                   className="w-full h-auto rounded-lg mb-4"
                 />
                 {/* Quality Grade Overlay */}
-                <div
-                  className={`absolute top-2 right-2 text-black font-bold rounded-full p-2 ${
-                    uploadResponse.analysis.quality_grade >= 8
-                      ? 'bg-green-500'
-                      : uploadResponse.analysis.quality_grade >= 5
-                        ? 'bg-yellow-500'
-                        : 'bg-red-500'
-                  }`}
-                >
-                  {uploadResponse.analysis.quality_grade}/10
-                </div>
+                {uploadResponse.analysis.quality_grade !== undefined && (
+                  <div
+                    className={`absolute top-2 right-2 text-black font-bold rounded-full p-2 ${
+                      uploadResponse.analysis.quality_grade >= 8
+                        ? 'bg-green-500'
+                        : uploadResponse.analysis.quality_grade >= 5
+                          ? 'bg-yellow-500'
+                          : 'bg-red-500'
+                    }`}
+                  >
+                    {uploadResponse.analysis.quality_grade}/10
+                  </div>
+                )}
                 <p className="text-sm text-gray-700">
                   <strong>Description:</strong>{' '}
                   {uploadResponse.analysis.description}
