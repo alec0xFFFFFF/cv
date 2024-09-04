@@ -25,6 +25,32 @@ interface ApiResponse {
 
 const defaultSearchTerms = ['nature', 'city', 'people', 'animals', 'technology', 'food'];
 
+const ImageItem = ({ photo }: { photo: Photo }) => {
+  const [aspectRatio, setAspectRatio] = useState(1);
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => {
+      setAspectRatio(img.width / img.height);
+    };
+    img.src = photo.filename;
+  }, [photo.filename]);
+
+  const getGridArea = () => {
+    if (aspectRatio > 1.5) return 'span 1 / span 2'; // Landscape
+    if (aspectRatio < 0.75) return 'span 2 / span 1'; // Portrait
+    if (aspectRatio >= 0.75 && aspectRatio <= 1.25) return 'span 1 / span 1'; // Medium format or 35mm
+    return 'span 1 / span 1'; // Default
+  };
+
+  return (
+    <div className="image-item" style={{ gridArea: getGridArea() }}>
+      <img src={photo.filename} alt={photo.description} />
+      <div className="image-description">{photo.description}</div>
+    </div>
+  );
+};
+
 export default function PhotoGallery() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [page, setPage] = useState(1);
@@ -140,17 +166,9 @@ export default function PhotoGallery() {
         ) : (
           <>
             {photos.length > 0 ? (
-              <div className="flex flex-wrap gap-4">
+              <div className="image-grid">
                 {photos.map((photo, index) => (
-                  <div key={index} className="flex-grow-0 flex-shrink-0 w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(33.333%-1rem)] max-w-[33.333vw]">
-                    <div className="aspect-square">
-                      <img 
-                        src={photo.filename} 
-                        alt={photo.description} 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
+                  <ImageItem key={index} photo={photo} />
                 ))}
               </div>
             ) : (
@@ -166,6 +184,41 @@ export default function PhotoGallery() {
           </>
         )}
       </main>
+      <style jsx global>{`
+        .image-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          grid-auto-rows: 200px;
+          grid-auto-flow: dense;
+          gap: 10px;
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        
+        .image-item {
+          position: relative;
+          overflow: hidden;
+          background-color: #f0f0f0;
+        }
+        
+        .image-item img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        
+        .image-description {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background-color: rgba(0, 0, 0, 0.7);
+          color: white;
+          padding: 5px;
+          font-size: 12px;
+        }
+      `}</style>
     </div>
   );
 }
