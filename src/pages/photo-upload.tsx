@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { useDropzone } from 'react-dropzone';
+import React, { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { API_BASE_URL } from '@/config';
-import Link from 'next/link';
+import { PhotoGalleryHeader } from '@/components/PhotoGalleryHeader';
+import { Upload, X, Image as ImageIcon } from 'lucide-react';
 
 interface UploadMetadata {
   directory: string;
@@ -19,6 +19,7 @@ interface UploadMetadata {
 export default function PhotoUpload() {
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const [metadata, setMetadata] = useState<UploadMetadata>({
     directory: '',
     film_format: '',
@@ -30,12 +31,41 @@ export default function PhotoUpload() {
     lens: '',
   });
 
-  const { getRootProps, getInputProps } = useDropzone({
-    accept: {'image/*': []},
-    onDrop: (acceptedFiles) => {
-      setFiles(acceptedFiles);
+  const onDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const onDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const onDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const onDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    setFiles((prevFiles) => [...prevFiles, ...droppedFiles]);
+  }, []);
+
+  const onFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const selectedFiles = Array.from(e.target.files);
+      setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
     }
-  });
+  }, []);
+
+  const removeFile = useCallback((fileToRemove: File) => {
+    setFiles((prevFiles) => prevFiles.filter(file => file !== fileToRemove));
+  }, []);
 
   const handleMetadataChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -94,27 +124,63 @@ export default function PhotoUpload() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-white border-b border-gray-200 py-4">
-        <div className="container mx-auto px-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">PHOTO GALLERY</h1>
-          <nav>
-            <Link href="/photo-gallery" className="text-gray-600 hover:text-gray-900">
-              Gallery
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <PhotoGalleryHeader onSearch={() => {}} currentPage="photo-upload" />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          <div {...getRootProps()} className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center cursor-pointer hover:border-gray-400 transition-colors">
-            <input {...getInputProps()} />
-            <Icon name="upload" className="text-gray-400 mb-4 w-16 h-16 mx-auto" />
-            <p className="text-xl text-gray-600">Drag & drop images here, or click to select files</p>
+          <div
+            onDragEnter={onDragEnter}
+            onDragLeave={onDragLeave}
+            onDragOver={onDragOver}
+            onDrop={onDrop}
+            className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
+              isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
+            }`}
+          >
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={onFileSelect}
+              className="hidden"
+              id="fileInput"
+            />
+            <label htmlFor="fileInput" className="cursor-pointer">
+              <Upload className="mx-auto h-12 w-12 text-gray-400" />
+              <p className="mt-2 text-xl text-gray-600">
+                Drag and drop your images here, or click to select files
+              </p>
+            </label>
           </div>
           
           {files.length > 0 && (
             <div className="mt-8">
-              <p className="text-lg text-gray-600 mb-4">{files.length} file(s) selected</p>
+              <h3 className="text-lg font-semibold mb-3">Selected Images:</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                {files.map((file, index) => (
+                  <div key={index} className="relative group">
+                    <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-200">
+                      {file.type.startsWith('image/') ? (
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={file.name}
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full">
+                          <ImageIcon className="h-8 w-8 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => removeFile(file)}
+                      className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                    <p className="mt-1 text-xs text-gray-500 truncate">{file.name}</p>
+                  </div>
+                ))}
+              </div>
               
               {/* Metadata form */}
               <div className="space-y-4 mb-4">
@@ -147,11 +213,6 @@ export default function PhotoUpload() {
           )}
         </div>
       </main>
-      <footer className="bg-white border-t border-gray-200 py-4">
-        <div className="container mx-auto px-4 text-right">
-          <p className="text-sm text-gray-600">White, Alec</p>
-        </div>
-      </footer>
     </div>
   );
 }

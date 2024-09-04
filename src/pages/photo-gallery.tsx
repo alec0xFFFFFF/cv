@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Icon } from '@/components/ui/icon';
-import Link from 'next/link';
 import { useInView } from 'react-intersection-observer';
+import { PhotoGalleryHeader } from '@/components/PhotoGalleryHeader';
+import { ImageItem } from '@/components/ImageItem';
 
 interface Photo {
   description: string;
@@ -25,32 +26,6 @@ interface ApiResponse {
 
 const defaultSearchTerms = ['nature', 'city', 'people', 'animals', 'technology', 'food'];
 
-const ImageItem = ({ photo }: { photo: Photo }) => {
-  const [aspectRatio, setAspectRatio] = useState(1);
-
-  useEffect(() => {
-    const img = new Image();
-    img.onload = () => {
-      setAspectRatio(img.width / img.height);
-    };
-    img.src = photo.filename;
-  }, [photo.filename]);
-
-  const getGridArea = () => {
-    if (aspectRatio > 1.5) return 'span 1 / span 2'; // Landscape
-    if (aspectRatio < 0.75) return 'span 2 / span 1'; // Portrait
-    if (aspectRatio >= 0.75 && aspectRatio <= 1.25) return 'span 1 / span 1'; // Medium format or 35mm
-    return 'span 1 / span 1'; // Default
-  };
-
-  return (
-    <div className="image-item" style={{ gridArea: getGridArea() }}>
-      <img src={photo.filename} alt={photo.description} />
-      <div className="image-description">{photo.description}</div>
-    </div>
-  );
-};
-
 export default function PhotoGallery() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [page, setPage] = useState(1);
@@ -68,7 +43,7 @@ export default function PhotoGallery() {
   useEffect(() => {
     const randomTerm = defaultSearchTerms[Math.floor(Math.random() * defaultSearchTerms.length)];
     setSearchTerm(randomTerm);
-    setDebouncedSearchTerm(randomTerm); // Set the debounced term immediately
+    setDebouncedSearchTerm(randomTerm);
   }, []);
 
   const debounce = useCallback((func: (...args: any[]) => void, delay: number) => {
@@ -83,12 +58,15 @@ export default function PhotoGallery() {
     debounce((value: string) => {
       setDebouncedSearchTerm(value);
       setPage(1);
-      if (value.trim() !== '') {
-        setPhotos([]);
-      }
+      setPhotos([]);
     }, 300),
     [debounce]
   );
+
+  const handleSearch = useCallback((value: string) => {
+    setSearchTerm(value);
+    debouncedSetSearchTerm(value);
+  }, [debouncedSetSearchTerm]);
 
   const fetchPhotos = useCallback(async () => {
     if (!hasMore || loading || debouncedSearchTerm.trim() === '') return;
@@ -136,29 +114,8 @@ export default function PhotoGallery() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-white border-b border-gray-200 py-4">
-        <div className="container mx-auto px-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">PHOTO GALLERY</h1>
-          <nav>
-            <Link href="/photo-upload" className="text-gray-600 hover:text-gray-900">
-              Upload
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <PhotoGalleryHeader onSearch={handleSearch} currentPage="photo-gallery" searchTerm={searchTerm} />
       <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="mb-4">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              debouncedSetSearchTerm(e.target.value);
-            }}
-            placeholder="Search photos..."
-            className="w-full p-2 border border-gray-300 rounded"
-          />
-        </div>
         {initialLoading ? (
           <div className="flex justify-center items-center h-64">
             <Icon name="loader" className="animate-spin w-8 h-8" />
@@ -205,7 +162,8 @@ export default function PhotoGallery() {
         .image-item img {
           width: 100%;
           height: 100%;
-          object-fit: cover;
+          object-fit: contain;
+          object-position: center;
         }
         
         .image-description {
@@ -217,6 +175,12 @@ export default function PhotoGallery() {
           color: white;
           padding: 5px;
           font-size: 12px;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+
+        .image-item:hover .image-description {
+          opacity: 1;
         }
       `}</style>
     </div>
