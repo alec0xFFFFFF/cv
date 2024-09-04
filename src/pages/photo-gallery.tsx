@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Icon } from '@/components/ui/icon';
 import { useInView } from 'react-intersection-observer';
@@ -22,12 +20,17 @@ interface ApiResponse {
 }
 
 const defaultSearchTerms = [
-  'nature',
-  'city',
-  'people',
-  'animals',
-  'technology',
-  'food',
+  'city skyline',
+  'nature trails',
+  'urban architecture',
+  'local cuisine',
+  'street photography',
+  'outdoor adventure',
+  'city parks',
+  'coffee culture',
+  'weekend getaway',
+  'urban gardens',
+  'bay'
 ];
 
 export default function PhotoGallery() {
@@ -36,6 +39,7 @@ export default function PhotoGallery() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [ref, inView] = useInView({
     threshold: 0,
     rootMargin: '200px',
@@ -53,10 +57,8 @@ export default function PhotoGallery() {
   }, []);
 
   const debounce = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (func: (...args: any[]) => void, delay: number) => {
       let timeoutId: NodeJS.Timeout | null = null;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (...args: any[]) => {
         if (timeoutId) clearTimeout(timeoutId);
         timeoutId = setTimeout(() => func(...args), delay);
@@ -77,6 +79,9 @@ export default function PhotoGallery() {
     if (loading || debouncedSearchTerm.trim() === '') return;
 
     setLoading(true);
+    if (page === 1) {
+      setSearchLoading(true);
+    }
     const params = new URLSearchParams({
       page: page.toString(),
       page_size: '20',
@@ -101,6 +106,7 @@ export default function PhotoGallery() {
     } finally {
       setLoading(false);
       setInitialLoading(false);
+      setSearchLoading(false);
     }
   }, [page, debouncedSearchTerm, loading]);
 
@@ -156,7 +162,12 @@ export default function PhotoGallery() {
           </div>
         ) : (
           <>
-            {photos.length > 0 ? (
+            {searchLoading ? (
+              <div className="flex flex-col justify-center items-center h-64">
+                <Icon name="loader" className="animate-spin w-12 h-12 mb-4" />
+                <p className="text-gray-600">Searching...</p>
+              </div>
+            ) : photos.length > 0 ? (
               <div className="min-h-screen bg-gray-100 py-4 px-4">
                 <ImageGrid photos={photos} onImageClick={handleImageClick} />
               </div>
@@ -165,7 +176,7 @@ export default function PhotoGallery() {
                 No results found. Try a different search term.
               </div>
             )}
-            {hasMore && (
+            {hasMore && !searchLoading && (
               <div ref={ref} className="h-20 flex items-center justify-center">
                 {loading && (
                   <Icon name="loader" className="animate-spin w-8 h-8" />
