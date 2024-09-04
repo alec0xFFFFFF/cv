@@ -98,7 +98,9 @@ export default function PhotoGallery() {
       if (data.images.length === 0) {
         setHasMore(false);
       } else {
-        setPhotos((prevPhotos) => (page === 1 ? data.images : [...prevPhotos, ...data.images]));
+        setPhotos((prevPhotos) =>
+          page === 1 ? data.images : [...prevPhotos, ...data.images]
+        );
         setPage((prevPage) => prevPage + 1);
         setHasMore(data.pagination.has_next);
       }

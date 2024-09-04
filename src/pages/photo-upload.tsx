@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { API_BASE_URL } from '@/config';
@@ -17,7 +17,22 @@ interface UploadMetadata {
   location: string;
   camera: string;
   lens: string;
-  password: string; // Add this line
+  password: string;
+}
+
+// Define the interface for the upload response
+interface UploadResponse {
+  analysis: {
+    categories: string[];
+    description: string;
+    descriptive_words: string[];
+    dominant_colors?: string[]; // Optional field
+    mood?: string; // Optional field
+  };
+  filename: string;
+  message: string;
+  original_filename: string;
+  public_url: string;
 }
 
 const cameraOptions = ['Mamiya C330', 'Leica M6', 'Holga 120N'];
@@ -50,6 +65,15 @@ export default function PhotoUpload() {
     lens: lensOptions[0],
     password: '',
   });
+  const [uploadResponse, setUploadResponse] = useState<UploadResponse | null>(null); // Use the defined interface
+  const fileInputRef = useRef<HTMLInputElement | null>(null); // Create a ref for the file input
+
+  useEffect(() => {
+    const savedPassword = localStorage.getItem('uploadPassword');
+    if (savedPassword) {
+      setMetadata((prev) => ({ ...prev, password: savedPassword }));
+    }
+  }, []);
 
   const onDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -92,19 +116,26 @@ export default function PhotoUpload() {
   ) => {
     const { name, value } = e.target;
     setMetadata((prev) => ({ ...prev, [name]: value }));
+
+    // Save password to localStorage when it changes
+    if (name === 'password') {
+      localStorage.setItem('uploadPassword', value);
+    }
   };
 
-  const handleUpload = async () => {
-    if (files.length === 0) return;
+  const handleUpload = async (newFiles?: File[]) => {
+    const filesToUpload = newFiles || files; // Use new files if provided
+
+    if (filesToUpload.length === 0) return;
 
     setUploading(true);
     const formData = new FormData();
 
     // Use 'image' for single upload, 'images' for batch upload
-    if (files.length === 1) {
-      formData.append('image', files[0]);
+    if (filesToUpload.length === 1) {
+      formData.append('image', filesToUpload[0]);
     } else {
-      files.forEach((file) => {
+      filesToUpload.forEach((file) => {
         formData.append('images', file);
       });
     }
@@ -124,19 +155,10 @@ export default function PhotoUpload() {
       });
 
       if (response.ok) {
+        const data = await response.json(); // Parse the JSON response
+        setUploadResponse(data); // Store the response in state
         alert('Upload successful!');
-        setFiles([]);
-        setMetadata({
-          directory: '',
-          film_format: '',
-          film_stock: '',
-          date: '',
-          processing_lab: '',
-          location: '',
-          camera: '',
-          lens: '',
-          password: '',
-        });
+        setFiles([]); // Clear files for another upload
       } else {
         alert('Upload failed. Please try again.');
       }
@@ -145,6 +167,14 @@ export default function PhotoUpload() {
       alert('An error occurred during upload.');
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const selectedFiles = Array.from(e.target.files);
+      handleUpload(selectedFiles); // Upload the selected files with existing metadata
+      e.target.value = ''; // Clear the input value
     }
   };
 
@@ -292,6 +322,60 @@ export default function PhotoUpload() {
                 )}
                 {uploading ? 'Uploading...' : 'Upload Photos'}
               </Button>
+            </div>
+          )}
+          {uploadResponse && ( // Display the upload response if available
+            <div className="mt-8 p-4 border border-gray-300 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold">Upload Response:</h3>
+              <div className="mt-4">
+                <img
+                  src={uploadResponse.public_url}
+                  alt={uploadResponse.original_filename}
+                  className="w-full h-auto rounded-lg mb-4"
+                />
+                <p className="text-sm text-gray-700">
+                  <strong>Description:</strong>{' '}
+                  {uploadResponse.analysis.description}
+                </p>
+                <div className="mt-2">
+                  <strong>Classifications:</strong>
+                  <ul className="list-disc list-inside mt-1">
+                    {uploadResponse.analysis.categories.map(
+                      (category, index) => (
+                        <li key={index} className="text-sm text-gray-600">
+                          {category}
+                        </li>
+                      )
+                    )}
+                  </ul>
+                </div>
+                <div className="mt-2">
+                  <strong>Descriptive Words:</strong>
+                  <ul className="list-disc list-inside mt-1">
+                    {uploadResponse.analysis.descriptive_words.map(
+                      (word, index) => (
+                        <li key={index} className="text-sm text-gray-600">
+                          {word}
+                        </li>
+                      )
+                    )}
+                  </ul>
+                </div>
+              </div>
+              <Button
+                onClick={() => fileInputRef.current?.click()} // Open file picker
+                className="mt-4"
+              >
+                Upload Another
+              </Button>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+                ref={fileInputRef} // Attach ref to the file input
+              />
             </div>
           )}
         </div>
