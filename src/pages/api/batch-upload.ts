@@ -41,7 +41,7 @@ export default async function handler(
     // Prepare the request options
     const options = {
       hostname: 'photolab-production.up.railway.app',
-      path: '/upload',
+      path: '/batch-upload',
       method: 'POST',
       headers: {
         Origin: 'https://0xffffff.codes',

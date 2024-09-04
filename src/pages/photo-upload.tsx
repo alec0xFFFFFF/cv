@@ -145,11 +145,11 @@ export default function PhotoUpload() {
       formData.append(key, value);
     });
 
-    console.log(`number of files: ${filesToUpload.length}`);
-    console.log(`number of images on formData: ${formData.getAll('images').length}`);
+    const endpoint = filesToUpload.length > 1 ? '/batch-upload' : '/upload';
+    console.log(`endpoint: ${endpoint}`);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/upload`, {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: {
           'X-API-Key': metadata.password,
@@ -158,11 +158,28 @@ export default function PhotoUpload() {
       });
 
       if (response.ok) {
-        const data: UploadResponse = await response.json();
-        setUploadResponse(data);
+        const data = await response.json();
+        console.log('Server response:', data);
+
+        if (data.uploaded_files && Array.isArray(data.uploaded_files)) {
+          setUploadResponse(data as UploadResponse);
+        } else if (data.analysis) {
+          // Handle single file upload response
+          setUploadResponse({
+            message: 'File uploaded successfully',
+            uploaded_files: [data],
+          });
+        } else {
+          console.error('Unexpected response format:', data);
+          alert(
+            'Upload successful, but received an unexpected response format.'
+          );
+        }
         setFiles([]); // Clear the files array after successful upload
       } else {
-        alert('Upload failed. Please try again.');
+        const errorData = await response.json();
+        console.error('Upload failed:', errorData);
+        alert(`Upload failed. ${errorData.error || 'Please try again.'}`);
       }
     } catch (error) {
       console.error('Error uploading:', error);
