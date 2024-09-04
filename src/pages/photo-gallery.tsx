@@ -43,6 +43,7 @@ export default function PhotoGallery() {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const [searchTriggered, setSearchTriggered] = useState(false);
 
   useEffect(() => {
     const randomTerm =
@@ -67,8 +68,7 @@ export default function PhotoGallery() {
   const debouncedSetSearchTerm = useCallback(
     debounce((value: string) => {
       setDebouncedSearchTerm(value);
-      setPage(1);
-      setPhotos([]);
+      setSearchTriggered(true);
     }, 300),
     [debounce]
   );
@@ -82,7 +82,7 @@ export default function PhotoGallery() {
   );
 
   const fetchPhotos = useCallback(async () => {
-    if (!hasMore || loading || debouncedSearchTerm.trim() === '') return;
+    if (loading || debouncedSearchTerm.trim() === '') return;
 
     setLoading(true);
     const params = new URLSearchParams({
@@ -98,7 +98,7 @@ export default function PhotoGallery() {
       if (data.images.length === 0) {
         setHasMore(false);
       } else {
-        setPhotos((prevPhotos) => [...prevPhotos, ...data.images]);
+        setPhotos((prevPhotos) => (page === 1 ? data.images : [...prevPhotos, ...data.images]));
         setPage((prevPage) => prevPage + 1);
         setHasMore(data.pagination.has_next);
       }
@@ -108,21 +108,25 @@ export default function PhotoGallery() {
       setLoading(false);
       setInitialLoading(false);
     }
-  }, [page, debouncedSearchTerm, hasMore, loading]);
+  }, [page, debouncedSearchTerm, loading]);
 
   useEffect(() => {
-    if (debouncedSearchTerm.trim() !== '') {
+    if (debouncedSearchTerm.trim() !== '' && searchTriggered) {
+      setPage(1);
+      setPhotos([]);
+      setHasMore(true);
       fetchPhotos();
+      setSearchTriggered(false);
     } else {
       setInitialLoading(false);
     }
-  }, [debouncedSearchTerm, fetchPhotos]);
+  }, [debouncedSearchTerm, fetchPhotos, searchTriggered]);
 
   useEffect(() => {
-    if (inView) {
+    if (inView && !loading && hasMore && !searchTriggered) {
       fetchPhotos();
     }
-  }, [inView, fetchPhotos]);
+  }, [inView, fetchPhotos, loading, hasMore, searchTriggered]);
 
   const handleImageClick = useCallback((photo: Photo) => {
     setSelectedPhoto(photo);
