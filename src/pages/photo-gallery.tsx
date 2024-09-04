@@ -104,7 +104,6 @@ export default function PhotoGallery() {
       }
     } catch (error) {
       console.error('Error fetching photos:', error);
-      setError('Failed to fetch photos. Please try again.');
     } finally {
       setLoading(false);
       setInitialLoading(false);
