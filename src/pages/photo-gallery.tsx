@@ -57,8 +57,10 @@ export default function PhotoGallery() {
   }, []);
 
   const debounce = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (func: (...args: any[]) => void, delay: number) => {
       let timeoutId: NodeJS.Timeout | null = null;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (...args: any[]) => {
         if (timeoutId) clearTimeout(timeoutId);
         timeoutId = setTimeout(() => func(...args), delay);
