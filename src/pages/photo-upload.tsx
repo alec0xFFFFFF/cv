@@ -362,33 +362,27 @@ export default function PhotoUpload() {
                   <strong>Description:</strong>{' '}
                   {uploadResponse.analysis.description}
                 </p>
-                <div className="mt-2">
-                  <strong>Classifications:</strong>
-                  <ul className="list-disc list-inside mt-1">
-                    {uploadResponse.analysis.categories.map(
-                      (category, index) => (
-                        <li key={index} className="text-sm text-gray-600">
-                          {category}
-                        </li>
-                      )
-                    )}
-                  </ul>
-                </div>
-                <div className="mt-2">
-                  <strong>Descriptive Words:</strong>
-                  <ul className="list-disc list-inside mt-1">
-                    {uploadResponse.analysis.descriptive_words.map(
-                      (word, index) => (
-                        <li key={index} className="text-sm text-gray-600">
-                          {word}
-                        </li>
-                      )
-                    )}
-                  </ul>
+                <div className="mt-4">
+                  <strong className="text-sm text-gray-600">Tags:</strong>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {[
+                      ...uploadResponse.analysis.categories,
+                      ...uploadResponse.analysis.descriptive_words,
+                    ].map((tag, index) => (
+                      <span
+                        key={index}
+                        className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
                 {uploadResponse.analysis.edit_instructions && (
-                  <div className="mt-2">
-                    <strong>Edit Instructions:</strong>
+                  <div className="mt-4">
+                    <strong className="text-sm text-gray-600">
+                      Edit Instructions:
+                    </strong>
                     <p className="text-sm text-gray-700 mt-1">
                       {uploadResponse.analysis.edit_instructions}
                     </p>
