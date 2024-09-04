@@ -22,20 +22,22 @@ interface UploadMetadata {
 
 // Define the interface for the upload response
 interface UploadResponse {
-  analysis: {
-    categories: string[];
-    description: string;
-    critique?: string; // Add this line
-    descriptive_words: string[];
-    dominant_colors?: string[];
-    mood?: string;
-    quality_grade?: number;
-    edit_instructions?: string;
-  };
-  filename: string;
   message: string;
-  original_filename: string;
-  public_url: string;
+  uploaded_files: {
+    analysis: {
+      categories: string[];
+      description: string;
+      critique?: string;
+      descriptive_words: string[];
+      dominant_colors?: string[];
+      mood?: string;
+      quality_grade?: string;
+      edit_instructions?: string;
+    };
+    filename: string;
+    original_filename: string;
+    public_url: string;
+  }[];
 }
 
 const cameraOptions = ['Mamiya C330', 'Leica M6', 'Holga 120N'];
@@ -70,8 +72,8 @@ export default function PhotoUpload() {
   });
   const [uploadResponse, setUploadResponse] = useState<UploadResponse | null>(
     null
-  ); // Use the defined interface
-  const fileInputRef = useRef<HTMLInputElement | null>(null); // Create a ref for the file input
+  );
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const savedPassword = localStorage.getItem('uploadPassword');
@@ -122,30 +124,23 @@ export default function PhotoUpload() {
     const { name, value } = e.target;
     setMetadata((prev) => ({ ...prev, [name]: value }));
 
-    // Save password to localStorage when it changes
     if (name === 'password') {
       localStorage.setItem('uploadPassword', value);
     }
   };
 
   const handleUpload = async (newFiles?: File[]) => {
-    const filesToUpload = newFiles || files; // Use new files if provided
+    const filesToUpload = newFiles || files;
 
     if (filesToUpload.length === 0) return;
 
     setUploading(true);
     const formData = new FormData();
 
-    // Use 'image' for single upload, 'images' for batch upload
-    if (filesToUpload.length === 1) {
-      formData.append('image', filesToUpload[0]);
-    } else {
-      filesToUpload.forEach((file) => {
-        formData.append('images', file);
-      });
-    }
+    filesToUpload.forEach((file) => {
+      formData.append('images', file);
+    });
 
-    // Append metadata to formData
     Object.entries(metadata).forEach(([key, value]) => {
       formData.append(key, value);
     });
@@ -160,10 +155,9 @@ export default function PhotoUpload() {
       });
 
       if (response.ok) {
-        const data = await response.json(); // Parse the JSON response
-        setUploadResponse(data); // Store the response in state
-        alert('Upload successful!');
-        setFiles([]); // Clear files for another upload
+        const data: UploadResponse = await response.json();
+        setUploadResponse(data);
+        setFiles([]); // Clear the files array after successful upload
       } else {
         alert('Upload failed. Please try again.');
       }
@@ -178,8 +172,8 @@ export default function PhotoUpload() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files);
-      handleUpload(selectedFiles); // Upload the selected files with existing metadata
-      e.target.value = ''; // Clear the input value
+      handleUpload(selectedFiles);
+      e.target.value = '';
     }
   };
 
@@ -251,7 +245,6 @@ export default function PhotoUpload() {
                 ))}
               </div>
 
-              {/* Metadata form */}
               <div className="space-y-4 mb-4">
                 {Object.entries(metadata).map(([key, value]) => (
                   <div key={key}>
@@ -316,7 +309,7 @@ export default function PhotoUpload() {
               </div>
 
               <Button
-                onClick={() => handleUpload()} // Call handleUpload without arguments
+                onClick={() => handleUpload()}
                 className="w-full"
                 disabled={uploading}
               >
@@ -329,68 +322,73 @@ export default function PhotoUpload() {
               </Button>
             </div>
           )}
-          {uploadResponse && ( // Display the upload response if available
-            <div className="mt-8 p-4 border border-gray-300 rounded-lg shadow-md relative">
+          {uploadResponse && (
+            <div className="mt-8 p-4 border border-gray-300 rounded-lg shadow-md">
               <h3 className="text-lg font-semibold">Upload Response:</h3>
-              <div className="mt-4">
-                <img
-                  src={uploadResponse.public_url}
-                  alt={uploadResponse.original_filename}
-                  className="w-full h-auto rounded-lg mb-4"
-                />
-                {/* Quality Grade Overlay */}
-                {uploadResponse.analysis.quality_grade !== undefined && (
-                  <div
-                    className={`absolute top-2 right-2 text-black font-bold rounded-full p-2 ${
-                      uploadResponse.analysis.quality_grade >= 8
-                        ? 'bg-green-500'
-                        : uploadResponse.analysis.quality_grade >= 5
-                          ? 'bg-yellow-500'
-                          : 'bg-red-500'
-                    }`}
-                  >
-                    {uploadResponse.analysis.quality_grade}/10
-                  </div>
-                )}
-                {uploadResponse.analysis.critique && (
-                  <p className="text-sm text-gray-700 mb-2">
-                    <strong>Critique:</strong>{' '}
-                    {uploadResponse.analysis.critique}
-                  </p>
-                )}
-                <p className="text-sm text-gray-700">
-                  <strong>Description:</strong>{' '}
-                  {uploadResponse.analysis.description}
-                </p>
-                <div className="mt-4">
-                  <strong className="text-sm text-gray-600">Tags:</strong>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {[
-                      ...uploadResponse.analysis.categories,
-                      ...uploadResponse.analysis.descriptive_words,
-                    ].map((tag, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                {uploadResponse.analysis.edit_instructions && (
-                  <div className="mt-4">
-                    <strong className="text-sm text-gray-600">
-                      Edit Instructions:
-                    </strong>
-                    <p className="text-sm text-gray-700 mt-1">
-                      {uploadResponse.analysis.edit_instructions}
+              <p className="mt-2 text-sm text-gray-600">
+                {uploadResponse.message}
+              </p>
+              {uploadResponse.uploaded_files.map((file, index) => (
+                <div
+                  key={index}
+                  className="mt-4 p-4 border border-gray-200 rounded-lg"
+                >
+                  <img
+                    src={file.public_url}
+                    alt={file.original_filename}
+                    className="w-full h-auto rounded-lg mb-4"
+                  />
+                  {file.analysis.quality_grade && (
+                    <div
+                      className={`absolute top-2 right-2 text-black font-bold rounded-full p-2 ${
+                        parseInt(file.analysis.quality_grade) >= 8
+                          ? 'bg-green-500'
+                          : parseInt(file.analysis.quality_grade) >= 5
+                            ? 'bg-yellow-500'
+                            : 'bg-red-500'
+                      }`}
+                    >
+                      {file.analysis.quality_grade}/10
+                    </div>
+                  )}
+                  {file.analysis.critique && (
+                    <p className="text-sm text-gray-700 mb-2">
+                      <strong>Critique:</strong> {file.analysis.critique}
                     </p>
+                  )}
+                  <p className="text-sm text-gray-700">
+                    <strong>Description:</strong> {file.analysis.description}
+                  </p>
+                  <div className="mt-4">
+                    <strong className="text-sm text-gray-600">Tags:</strong>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {[
+                        ...file.analysis.categories,
+                        ...file.analysis.descriptive_words,
+                      ].map((tag, tagIndex) => (
+                        <span
+                          key={tagIndex}
+                          className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                )}
-              </div>
+                  {file.analysis.edit_instructions && (
+                    <div className="mt-4">
+                      <strong className="text-sm text-gray-600">
+                        Edit Instructions:
+                      </strong>
+                      <p className="text-sm text-gray-700 mt-1">
+                        {file.analysis.edit_instructions}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
               <Button
-                onClick={() => fileInputRef.current?.click()} // Open file picker
+                onClick={() => fileInputRef.current?.click()}
                 className="mt-4"
                 disabled={uploading}
               >
@@ -402,7 +400,7 @@ export default function PhotoUpload() {
                 accept="image/*"
                 onChange={handleFileSelect}
                 className="hidden"
-                ref={fileInputRef} // Attach ref to the file input
+                ref={fileInputRef}
               />
             </div>
           )}

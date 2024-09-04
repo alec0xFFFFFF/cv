@@ -30,7 +30,7 @@ const defaultSearchTerms = [
   'coffee culture',
   'weekend getaway',
   'urban gardens',
-  'bay'
+  'bay',
 ];
 
 export default function PhotoGallery() {

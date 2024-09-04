@@ -30,7 +30,8 @@ export const FullscreenImage: React.FC<FullscreenImageProps> = ({
 
     let valueClass = '';
     if (label === 'Quality Grade') {
-      const numericValue = typeof value === 'string' ? parseFloat(value) : value;
+      const numericValue =
+        typeof value === 'string' ? parseFloat(value) : value;
       valueClass =
         numericValue >= 8
           ? 'font-bold rounded-full p-2 bg-green-500'
