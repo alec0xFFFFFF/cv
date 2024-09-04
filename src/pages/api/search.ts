@@ -5,13 +5,16 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { page, page_size, query } = req.query;
+  const { page_size, query, cursor } = req.query;
 
   const params = new URLSearchParams({
-    page: page as string,
     page_size: page_size as string,
     query: query as string,
   });
+
+  if (cursor) {
+    params.append('cursor', cursor as string);
+  }
 
   try {
     const response = await fetch(`${API_BASE_URL}/search?${params}`);

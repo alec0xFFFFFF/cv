@@ -10,12 +10,8 @@ import '../app/globals.css';
 interface ApiResponse {
   images: Photo[];
   pagination: {
-    has_next: boolean;
-    has_prev: boolean;
-    page: number;
-    page_size: number;
-    total_count: number;
-    total_pages: number;
+    next_cursor: string | null;
+    has_more: boolean;
   };
 }
 
@@ -35,7 +31,7 @@ const defaultSearchTerms = [
 
 export default function PhotoGallery() {
   const [photos, setPhotos] = useState<Photo[]>([]);
-  const [page, setPage] = useState(1);
+  const [cursor, setCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -81,14 +77,17 @@ export default function PhotoGallery() {
     if (loading || debouncedSearchTerm.trim() === '') return;
 
     setLoading(true);
-    if (page === 1) {
+    if (!cursor) {
       setSearchLoading(true);
     }
     const params = new URLSearchParams({
-      page: page.toString(),
       page_size: '20',
       query: debouncedSearchTerm.trim(),
     });
+
+    if (cursor) {
+      params.append('cursor', cursor);
+    }
 
     try {
       const response = await fetch(`/api/search?${params}`);
@@ -98,10 +97,10 @@ export default function PhotoGallery() {
         setHasMore(false);
       } else {
         setPhotos((prevPhotos) =>
-          page === 1 ? data.images : [...prevPhotos, ...data.images]
+          cursor ? [...prevPhotos, ...data.images] : data.images
         );
-        setPage((prevPage) => prevPage + 1);
-        setHasMore(data.pagination.has_next);
+        setCursor(data.pagination.next_cursor);
+        setHasMore(data.pagination.has_more);
       }
     } catch (error) {
       console.error('Error fetching photos:', error);
@@ -110,11 +109,11 @@ export default function PhotoGallery() {
       setInitialLoading(false);
       setSearchLoading(false);
     }
-  }, [page, debouncedSearchTerm, loading]);
+  }, [cursor, debouncedSearchTerm, loading]);
 
   useEffect(() => {
     if (debouncedSearchTerm.trim() !== '' && searchTriggered) {
-      setPage(1);
+      setCursor(null);
       setPhotos([]);
       setHasMore(true);
       fetchPhotos();
