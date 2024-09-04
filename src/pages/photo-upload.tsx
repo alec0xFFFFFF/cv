@@ -7,7 +7,8 @@ import Link from 'next/link';
 
 interface UploadMetadata {
   directory: string;
-  film_type: string;
+  film_format: string;
+  film_stock: string;
   date: string;
   processing_lab: string;
   location: string;
@@ -20,7 +21,8 @@ export default function PhotoUpload() {
   const [uploading, setUploading] = useState(false);
   const [metadata, setMetadata] = useState<UploadMetadata>({
     directory: '',
-    film_type: '',
+    film_format: '',
+    film_stock: '',
     date: '',
     processing_lab: '',
     location: '',
@@ -45,9 +47,15 @@ export default function PhotoUpload() {
 
     setUploading(true);
     const formData = new FormData();
-    files.forEach((file) => {
-      formData.append('images', file);
-    });
+
+    // Use 'image' for single upload, 'images' for batch upload
+    if (files.length === 1) {
+      formData.append('image', files[0]);
+    } else {
+      files.forEach((file) => {
+        formData.append('images', file);
+      });
+    }
 
     // Append metadata to formData
     Object.entries(metadata).forEach(([key, value]) => {
@@ -65,7 +73,8 @@ export default function PhotoUpload() {
         setFiles([]);
         setMetadata({
           directory: '',
-          film_type: '',
+          film_format: '',
+          film_stock: '',
           date: '',
           processing_lab: '',
           location: '',
