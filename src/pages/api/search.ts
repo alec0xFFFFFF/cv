@@ -1,13 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { API_BASE_URL } from '@/config';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   const { page, page_size, query } = req.query;
 
   const params = new URLSearchParams({
     page: page as string,
     page_size: page_size as string,
-    query: query as string
+    query: query as string,
   });
 
   try {

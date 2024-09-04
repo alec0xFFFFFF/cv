@@ -8,13 +8,19 @@ interface PhotoGalleryHeaderProps {
   searchTerm: string;
 }
 
-export const PhotoGalleryHeader: React.FC<PhotoGalleryHeaderProps> = ({ onSearch, currentPage, searchTerm }) => {
+export const PhotoGalleryHeader: React.FC<PhotoGalleryHeaderProps> = ({
+  onSearch,
+  currentPage,
+  searchTerm,
+}) => {
   return (
     <header className="bg-white border-b border-gray-200 py-6 px-4">
       <Navigation currentPage={currentPage} />
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-light mb-6 text-center text-gray-800 tracking-wide">PHOTO GALLERY</h1>
-        
+        <h1 className="text-3xl font-light mb-6 text-center text-gray-800 tracking-wide">
+          PHOTO GALLERY
+        </h1>
+
         {currentPage === 'photo-gallery' && (
           <div className="flex items-center justify-center">
             <div className="relative w-full max-w-md">
@@ -25,7 +31,10 @@ export const PhotoGalleryHeader: React.FC<PhotoGalleryHeaderProps> = ({ onSearch
                 onChange={(e) => onSearch(e.target.value)}
                 value={searchTerm}
               />
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <Search
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={20}
+              />
             </div>
           </div>
         )}

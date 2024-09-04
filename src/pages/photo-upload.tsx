@@ -4,6 +4,7 @@ import { Icon } from '@/components/ui/icon';
 import { API_BASE_URL } from '@/config';
 import { PhotoGalleryHeader } from '@/components/PhotoGalleryHeader';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import '../app/globals.css';
 
 interface UploadMetadata {
   directory: string;
@@ -64,12 +65,12 @@ export default function PhotoUpload() {
   }, []);
 
   const removeFile = useCallback((fileToRemove: File) => {
-    setFiles((prevFiles) => prevFiles.filter(file => file !== fileToRemove));
+    setFiles((prevFiles) => prevFiles.filter((file) => file !== fileToRemove));
   }, []);
 
   const handleMetadataChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setMetadata(prev => ({ ...prev, [name]: value }));
+    setMetadata((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleUpload = async () => {
@@ -124,7 +125,11 @@ export default function PhotoUpload() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <PhotoGalleryHeader onSearch={() => {}} currentPage="photo-upload" searchTerm='' />
+      <PhotoGalleryHeader
+        onSearch={() => {}}
+        currentPage="photo-upload"
+        searchTerm=""
+      />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           <div
@@ -133,7 +138,9 @@ export default function PhotoUpload() {
             onDragOver={onDragOver}
             onDrop={onDrop}
             className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-              isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
+              isDragging
+                ? 'border-blue-500 bg-blue-50'
+                : 'border-gray-300 hover:border-gray-400'
             }`}
           >
             <input
@@ -151,7 +158,7 @@ export default function PhotoUpload() {
               </p>
             </label>
           </div>
-          
+
           {files.length > 0 && (
             <div className="mt-8">
               <h3 className="text-lg font-semibold mb-3">Selected Images:</h3>
@@ -177,17 +184,23 @@ export default function PhotoUpload() {
                     >
                       <X className="h-4 w-4" />
                     </button>
-                    <p className="mt-1 text-xs text-gray-500 truncate">{file.name}</p>
+                    <p className="mt-1 text-xs text-gray-500 truncate">
+                      {file.name}
+                    </p>
                   </div>
                 ))}
               </div>
-              
+
               {/* Metadata form */}
               <div className="space-y-4 mb-4">
                 {Object.entries(metadata).map(([key, value]) => (
                   <div key={key}>
-                    <label htmlFor={key} className="block text-sm font-medium text-gray-700">
-                      {key.replace('_', ' ').charAt(0).toUpperCase() + key.replace('_', ' ').slice(1)}
+                    <label
+                      htmlFor={key}
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      {key.replace('_', ' ').charAt(0).toUpperCase() +
+                        key.replace('_', ' ').slice(1)}
                     </label>
                     <input
                       type={key === 'date' ? 'date' : 'text'}
@@ -201,7 +214,11 @@ export default function PhotoUpload() {
                 ))}
               </div>
 
-              <Button onClick={handleUpload} className="w-full" disabled={uploading}>
+              <Button
+                onClick={handleUpload}
+                className="w-full"
+                disabled={uploading}
+              >
                 {uploading ? (
                   <Icon name="loader" className="animate-spin mr-2" />
                 ) : (

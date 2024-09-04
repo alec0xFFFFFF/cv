@@ -2,15 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Icon } from '@/components/ui/icon';
 import { useInView } from 'react-intersection-observer';
 import { PhotoGalleryHeader } from '@/components/PhotoGalleryHeader';
-import { ImageItem } from '@/components/ImageItem';
-
-interface Photo {
-  description: string;
-  filename: string;
-  film_format: string;
-  film_stock: string;
-  similarity_score: number;
-}
+import { FullscreenImage } from '@/components/FullscreenImage';
+import { ImageGrid } from '@/components/ImageGrid';
+import { Photo } from '@/components/types';
+import '../app/globals.css';
 
 interface ApiResponse {
   images: Photo[];
@@ -24,7 +19,14 @@ interface ApiResponse {
   };
 }
 
-const defaultSearchTerms = ['nature', 'city', 'people', 'animals', 'technology', 'food'];
+const defaultSearchTerms = [
+  'nature',
+  'city',
+  'people',
+  'animals',
+  'technology',
+  'food',
+];
 
 export default function PhotoGallery() {
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -39,20 +41,25 @@ export default function PhotoGallery() {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
 
   useEffect(() => {
-    const randomTerm = defaultSearchTerms[Math.floor(Math.random() * defaultSearchTerms.length)];
+    const randomTerm =
+      defaultSearchTerms[Math.floor(Math.random() * defaultSearchTerms.length)];
     setSearchTerm(randomTerm);
     setDebouncedSearchTerm(randomTerm);
   }, []);
 
-  const debounce = useCallback((func: (...args: any[]) => void, delay: number) => {
-    let timeoutId: NodeJS.Timeout | null = null;
-    return (...args: any[]) => {
-      if (timeoutId) clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func(...args), delay);
-    };
-  }, []);
+  const debounce = useCallback(
+    (func: (...args: any[]) => void, delay: number) => {
+      let timeoutId: NodeJS.Timeout | null = null;
+      return (...args: any[]) => {
+        if (timeoutId) clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func(...args), delay);
+      };
+    },
+    []
+  );
 
   const debouncedSetSearchTerm = useCallback(
     debounce((value: string) => {
@@ -63,10 +70,13 @@ export default function PhotoGallery() {
     [debounce]
   );
 
-  const handleSearch = useCallback((value: string) => {
-    setSearchTerm(value);
-    debouncedSetSearchTerm(value);
-  }, [debouncedSetSearchTerm]);
+  const handleSearch = useCallback(
+    (value: string) => {
+      setSearchTerm(value);
+      debouncedSetSearchTerm(value);
+    },
+    [debouncedSetSearchTerm]
+  );
 
   const fetchPhotos = useCallback(async () => {
     if (!hasMore || loading || debouncedSearchTerm.trim() === '') return;
@@ -75,13 +85,13 @@ export default function PhotoGallery() {
     const params = new URLSearchParams({
       page: page.toString(),
       page_size: '20',
-      query: debouncedSearchTerm.trim()
+      query: debouncedSearchTerm.trim(),
     });
 
     try {
       const response = await fetch(`/api/search?${params}`);
       const data: ApiResponse = await response.json();
-      
+
       if (data.images.length === 0) {
         setHasMore(false);
       } else {
@@ -112,9 +122,21 @@ export default function PhotoGallery() {
     }
   }, [inView, fetchPhotos]);
 
+  const handleImageClick = useCallback((photo: Photo) => {
+    setSelectedPhoto(photo);
+  }, []);
+
+  const handleCloseFullscreen = useCallback(() => {
+    setSelectedPhoto(null);
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
-      <PhotoGalleryHeader onSearch={handleSearch} currentPage="photo-gallery" searchTerm={searchTerm} />
+      <PhotoGalleryHeader
+        onSearch={handleSearch}
+        currentPage="photo-gallery"
+        searchTerm={searchTerm}
+      />
       <main className="flex-grow container mx-auto px-4 py-8">
         {initialLoading ? (
           <div className="flex justify-center items-center h-64">
@@ -123,10 +145,8 @@ export default function PhotoGallery() {
         ) : (
           <>
             {photos.length > 0 ? (
-              <div className="image-grid">
-                {photos.map((photo, index) => (
-                  <ImageItem key={index} photo={photo} />
-                ))}
+              <div className="min-h-screen bg-gray-100 py-8">
+                <ImageGrid photos={photos} onImageClick={handleImageClick} />
               </div>
             ) : (
               <div className="text-center text-gray-500 mt-8">
@@ -135,54 +155,20 @@ export default function PhotoGallery() {
             )}
             {hasMore && (
               <div ref={ref} className="h-20 flex items-center justify-center">
-                {loading && <Icon name="loader" className="animate-spin w-8 h-8" />}
+                {loading && (
+                  <Icon name="loader" className="animate-spin w-8 h-8" />
+                )}
               </div>
             )}
           </>
         )}
       </main>
-      <style jsx global>{`
-        .image-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          grid-auto-rows: 200px;
-          grid-auto-flow: dense;
-          gap: 10px;
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 20px;
-        }
-        
-        .image-item {
-          position: relative;
-          overflow: hidden;
-          background-color: #f0f0f0;
-        }
-        
-        .image-item img {
-          width: 100%;
-          height: 100%;
-          object-fit: contain;
-          object-position: center;
-        }
-        
-        .image-description {
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          background-color: rgba(0, 0, 0, 0.7);
-          color: white;
-          padding: 5px;
-          font-size: 12px;
-          opacity: 0;
-          transition: opacity 0.3s ease;
-        }
-
-        .image-item:hover .image-description {
-          opacity: 1;
-        }
-      `}</style>
+      {selectedPhoto && (
+        <FullscreenImage
+          photo={selectedPhoto}
+          onClose={handleCloseFullscreen}
+        />
+      )}
     </div>
   );
 }

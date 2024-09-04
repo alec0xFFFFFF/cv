@@ -1,13 +1,13 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CommandMenu } from "@/components/command-menu";
-import { Metadata } from "next";
-import { Section } from "@/components/ui/section";
-import { GlobeIcon, MailIcon, PhoneIcon, FileText } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { RESUME_DATA } from "@/data/resume-data";
-import { ProjectCard } from "@/components/project-card";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { CommandMenu } from '@/components/command-menu';
+import { Metadata } from 'next';
+import { Section } from '@/components/ui/section';
+import { GlobeIcon, MailIcon, PhoneIcon, FileText } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { RESUME_DATA } from '@/data/resume-data';
+import { ProjectCard } from '@/components/project-card';
 
 interface ExtendedMetadata extends Metadata {
   'og:title'?: string;
@@ -52,7 +52,13 @@ export default function Page() {
             <div className="flex gap-x-1 pt-1 items-center font-mono text-sm text-muted-foreground print:hidden">
               <p>HOME</p>
               <p>|</p>
-              <a className="inline-flex gap-x-1.5 align-baseline leading-none hover:underline" target="_blank" href={RESUME_DATA.blogLink}>BLOG</a>
+              <a
+                className="inline-flex gap-x-1.5 align-baseline leading-none hover:underline"
+                target="_blank"
+                href={RESUME_DATA.blogLink}
+              >
+                BLOG
+              </a>
             </div>
             <h1 className="text-2xl font-bold">{RESUME_DATA.name}</h1>
             <p className="max-w-md text-pretty font-mono text-sm text-muted-foreground">
@@ -133,7 +139,9 @@ export default function Page() {
 
               {RESUME_DATA.contact.resume ? (
                 <a href={RESUME_DATA.contact.resume}>
-                  <span className="underline">{RESUME_DATA.contact.resume}</span>
+                  <span className="underline">
+                    {RESUME_DATA.contact.resume}
+                  </span>
                 </a>
               ) : null}
             </div>
@@ -156,7 +164,13 @@ export default function Page() {
             return (
               <Card key={work.company}>
                 <CardHeader>
-                  {work.logo && <img className="max-w-xs" src={work.logo.src} alt={formatString(`${work.company}-logo`)} />}
+                  {work.logo && (
+                    <img
+                      className="max-w-xs"
+                      src={work.logo.src}
+                      alt={formatString(`${work.company}-logo`)}
+                    />
+                  )}
                   <div className="flex items-center justify-between gap-x-2 text-base">
                     <h3 className="inline-flex items-center justify-center gap-x-1 font-semibold leading-none">
                       <a className="hover:underline" href={work.link}>
@@ -230,8 +244,8 @@ export default function Page() {
                   title={project.title}
                   description={project.description}
                   tags={project.techStack}
-                  link={"link" in project ? project.link.href : undefined}
-                  logo={"logo" in project ? project.logo.src : undefined}
+                  link={'link' in project ? project.link.href : undefined}
+                  logo={'logo' in project ? project.logo.src : undefined}
                 />
               );
             })}
@@ -243,7 +257,7 @@ export default function Page() {
         links={[
           {
             url: RESUME_DATA.personalWebsiteUrl,
-            title: "Personal Website",
+            title: 'Personal Website',
           },
           ...RESUME_DATA.contact.social.map((socialMediaLink) => ({
             url: socialMediaLink.url,

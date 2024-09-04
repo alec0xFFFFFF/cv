@@ -4,8 +4,8 @@ import {
   CardContent,
   CardDescription,
   CardTitle,
-} from "./ui/card";
-import { Badge } from "./ui/badge";
+} from './ui/card';
+import { Badge } from './ui/badge';
 
 interface Props {
   title: string;
@@ -32,7 +32,7 @@ export function ProjectCard({ title, description, tags, link, logo }: Props) {
                 target="_blank"
                 className="inline-flex items-center gap-1 hover:underline"
               >
-                {title}{" "}
+                {title}{' '}
                 <span className="size-1 rounded-full bg-green-500"></span>
               </a>
             ) : (
@@ -40,7 +40,7 @@ export function ProjectCard({ title, description, tags, link, logo }: Props) {
             )}
           </CardTitle>
           <div className="hidden font-mono text-xs underline print:visible">
-            {link?.replace("https://", "").replace("www.", "").replace("/", "")}
+            {link?.replace('https://', '').replace('www.', '').replace('/', '')}
           </div>
           <CardDescription className="font-mono text-xs">
             {description}
