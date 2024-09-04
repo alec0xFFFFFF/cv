@@ -38,6 +38,8 @@ export default async function handler(
     }
 
     const isBatchUpload = files.images && files.images.length > 1;
+    console.log('isBatchUpload', isBatchUpload);
+    console.log('number of files', files.images.length);
     const endpoint = isBatchUpload ? '/batch-upload' : '/upload';
 
     // Prepare the request options

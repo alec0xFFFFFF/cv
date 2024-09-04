@@ -145,6 +145,9 @@ export default function PhotoUpload() {
       formData.append(key, value);
     });
 
+    console.log(`number of files: ${filesToUpload.length}`);
+    console.log(`number of images on formData: ${formData.getAll('images').length}`);
+
     try {
       const response = await fetch(`${API_BASE_URL}/upload`, {
         method: 'POST',
