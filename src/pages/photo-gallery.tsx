@@ -10,7 +10,9 @@ import '../app/globals.css';
 interface ApiResponse {
   images: Photo[];
   pagination: {
-    next_cursor: string | null;
+    offset: number;
+    page_size: number;
+    total_results: number;
     has_more: boolean;
   };
 }
@@ -31,7 +33,7 @@ const defaultSearchTerms = [
 
 export default function PhotoGallery() {
   const [photos, setPhotos] = useState<Photo[]>([]);
-  const [cursor, setCursor] = useState<string | null>(null);
+  const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -77,17 +79,14 @@ export default function PhotoGallery() {
     if (loading || debouncedSearchTerm.trim() === '') return;
 
     setLoading(true);
-    if (!cursor) {
+    if (offset === 0) {
       setSearchLoading(true);
     }
     const params = new URLSearchParams({
+      offset: offset.toString(),
       page_size: '20',
       query: debouncedSearchTerm.trim(),
     });
-
-    if (cursor) {
-      params.append('cursor', cursor);
-    }
 
     try {
       const response = await fetch(`/api/search?${params}`);
@@ -97,9 +96,9 @@ export default function PhotoGallery() {
         setHasMore(false);
       } else {
         setPhotos((prevPhotos) =>
-          cursor ? [...prevPhotos, ...data.images] : data.images
+          offset === 0 ? data.images : [...prevPhotos, ...data.images]
         );
-        setCursor(data.pagination.next_cursor);
+        setOffset((prevOffset) => prevOffset + data.pagination.page_size);
         setHasMore(data.pagination.has_more);
       }
     } catch (error) {
@@ -109,11 +108,11 @@ export default function PhotoGallery() {
       setInitialLoading(false);
       setSearchLoading(false);
     }
-  }, [cursor, debouncedSearchTerm, loading]);
+  }, [offset, debouncedSearchTerm, loading]);
 
   useEffect(() => {
     if (debouncedSearchTerm.trim() !== '' && searchTriggered) {
-      setCursor(null);
+      setOffset(0);
       setPhotos([]);
       setHasMore(true);
       fetchPhotos();
