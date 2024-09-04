@@ -25,10 +25,12 @@ interface UploadResponse {
   analysis: {
     categories: string[];
     description: string;
+    critique?: string; // Add this line
     descriptive_words: string[];
     dominant_colors?: string[];
     mood?: string;
     quality_grade?: number;
+    edit_instructions?: string;
   };
   filename: string;
   message: string;
@@ -350,6 +352,12 @@ export default function PhotoUpload() {
                     {uploadResponse.analysis.quality_grade}/10
                   </div>
                 )}
+                {uploadResponse.analysis.critique && (
+                  <p className="text-sm text-gray-700 mb-2">
+                    <strong>Critique:</strong>{' '}
+                    {uploadResponse.analysis.critique}
+                  </p>
+                )}
                 <p className="text-sm text-gray-700">
                   <strong>Description:</strong>{' '}
                   {uploadResponse.analysis.description}
@@ -378,6 +386,14 @@ export default function PhotoUpload() {
                     )}
                   </ul>
                 </div>
+                {uploadResponse.analysis.edit_instructions && (
+                  <div className="mt-2">
+                    <strong>Edit Instructions:</strong>
+                    <p className="text-sm text-gray-700 mt-1">
+                      {uploadResponse.analysis.edit_instructions}
+                    </p>
+                  </div>
+                )}
               </div>
               <Button
                 onClick={() => fileInputRef.current?.click()} // Open file picker

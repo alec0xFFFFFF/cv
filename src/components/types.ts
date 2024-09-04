@@ -1,6 +1,7 @@
 export interface Photo {
   filename: string;
   description?: string;
+  critique?: string; // Add this line
   film_format?: string;
   film_stock?: string;
   similarity_score?: number;
@@ -9,4 +10,5 @@ export interface Photo {
   lens?: string;
   processing_lab?: string;
   camera?: string;
+  edit_instructions?: string; // Add this line
 }
