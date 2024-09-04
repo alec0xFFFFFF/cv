@@ -351,14 +351,14 @@ export default function PhotoUpload() {
               {uploadResponse.uploaded_files.map((file, index) => (
                 <div
                   key={index}
-                  className="mt-4 p-4 border border-gray-200 rounded-lg"
+                  className="mt-4 p-4 border border-gray-200 rounded-lg relative" // Added relative positioning
                 >
                   <img
                     src={file.public_url}
                     alt={file.original_filename}
                     className="w-full h-auto rounded-lg mb-4"
                   />
-                  {file.analysis.quality_grade && (
+                  {file.analysis.quality_grade && ( // Moved quality grade here
                     <div
                       className={`absolute top-2 right-2 text-black font-bold rounded-full p-2 ${
                         parseInt(file.analysis.quality_grade) >= 8
