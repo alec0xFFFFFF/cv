@@ -46,32 +46,32 @@ export default function PhotoGallery() {
     setSearchTerm(randomTerm);
   }, []);
 
-  // Custom debounce function
   const debounce = useCallback((func: (...args: any[]) => void, delay: number) => {
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: NodeJS.Timeout | null = null;
     return (...args: any[]) => {
-      clearTimeout(timeoutId);
+      if (timeoutId) clearTimeout(timeoutId);
       timeoutId = setTimeout(() => func(...args), delay);
     };
   }, []);
 
-  // Debounced search term setter
+  // Replace the existing debouncedSetSearchTerm with this improved version
   const debouncedSetSearchTerm = useCallback(
-    (value: string) => {
-      const timeoutId = setTimeout(() => setDebouncedSearchTerm(value), 300);
-      return () => clearTimeout(timeoutId);
-    },
-    []
+    debounce((value: string) => {
+      setDebouncedSearchTerm(value);
+      setPage(1); // Reset page when search term changes
+      setPhotos([]); // Clear existing photos
+    }, 300),
+    [debounce]
   );
 
   const fetchPhotos = useCallback(async () => {
-    if (!hasMore || loading) return;
+    if (!hasMore || loading || debouncedSearchTerm.trim() === '') return;
 
     setLoading(true);
     const params = new URLSearchParams({
       page: page.toString(),
       page_size: '20',
-      query: debouncedSearchTerm
+      query: debouncedSearchTerm.trim()
     });
 
     try {
@@ -87,21 +87,19 @@ export default function PhotoGallery() {
       }
     } catch (error) {
       console.error('Error fetching photos:', error);
+      setError('Failed to fetch photos. Please try again.');
     } finally {
       setLoading(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, debouncedSearchTerm]);
+  }, [page, debouncedSearchTerm, hasMore, loading]);
+
+  // Remove the initial useEffect that calls fetchPhotos
 
   useEffect(() => {
-    fetchPhotos();
-  }, []);
-
-  useEffect(() => {
-    if (inView) {
+    if (debouncedSearchTerm.trim() !== '') {
       fetchPhotos();
     }
-  }, [inView, fetchPhotos]);
+  }, [debouncedSearchTerm, fetchPhotos]);
 
   return (
     <div className="min-h-screen flex flex-col">
