@@ -30,6 +30,7 @@ export default function PhotoGallery() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [ref, inView] = useInView({
     threshold: 0,
     rootMargin: '200px',
@@ -52,12 +53,13 @@ export default function PhotoGallery() {
     };
   }, []);
 
-  // Replace the existing debouncedSetSearchTerm with this improved version
   const debouncedSetSearchTerm = useCallback(
     debounce((value: string) => {
       setDebouncedSearchTerm(value);
-      setPage(1); // Reset page when search term changes
-      setPhotos([]); // Clear existing photos
+      setPage(1);
+      if (value.trim() !== '') {
+        setPhotos([]);
+      }
     }, 300),
     [debounce]
   );
@@ -73,7 +75,6 @@ export default function PhotoGallery() {
     });
 
     try {
-      // Update this line to use the new API route
       const response = await fetch(`/api/search?${params}`);
       const data: ApiResponse = await response.json();
       
@@ -89,16 +90,23 @@ export default function PhotoGallery() {
       setError('Failed to fetch photos. Please try again.');
     } finally {
       setLoading(false);
+      setInitialLoading(false);
     }
   }, [page, debouncedSearchTerm, hasMore, loading]);
-
-  // Remove the initial useEffect that calls fetchPhotos
 
   useEffect(() => {
     if (debouncedSearchTerm.trim() !== '') {
       fetchPhotos();
+    } else {
+      setInitialLoading(false);
     }
   }, [debouncedSearchTerm, fetchPhotos]);
+
+  useEffect(() => {
+    if (inView) {
+      fetchPhotos();
+    }
+  }, [inView, fetchPhotos]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -125,28 +133,39 @@ export default function PhotoGallery() {
             className="w-full p-2 border border-gray-300 rounded"
           />
         </div>
-        <div className="flex flex-wrap gap-4">
-          {photos.map((photo, index) => (
-            <div key={index} className="flex-grow-0 flex-shrink-0 w-[calc(33.333%-1rem)] min-w-[250px] max-w-[400px]">
-              <div className="aspect-square">
-                <img 
-                  src={photo.filename} 
-                  alt={photo.description} 
-                  className="w-full h-full object-cover"
-                />
+        {initialLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <Icon name="loader" className="animate-spin w-8 h-8" />
+          </div>
+        ) : (
+          <>
+            {photos.length > 0 ? (
+              <div className="flex flex-wrap gap-4">
+                {photos.map((photo, index) => (
+                  <div key={index} className="flex-grow-0 flex-shrink-0 w-[calc(33.333%-1rem)] min-w-[250px] max-w-[400px]">
+                    <div className="aspect-square">
+                      <img 
+                        src={photo.filename} 
+                        alt={photo.description} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          ))}
-        </div>
-        {hasMore && <div ref={ref} className="h-20 flex items-center justify-center">
-          {loading && <Icon name="loader" className="animate-spin" />}
-        </div>}
+            ) : (
+              <div className="text-center text-gray-500 mt-8">
+                No results found. Try a different search term.
+              </div>
+            )}
+            {hasMore && (
+              <div ref={ref} className="h-20 flex items-center justify-center">
+                {loading && <Icon name="loader" className="animate-spin w-8 h-8" />}
+              </div>
+            )}
+          </>
+        )}
       </main>
-      <footer className="bg-white border-t border-gray-200 py-4">
-        <div className="container mx-auto px-4 text-right">
-          <p className="text-sm text-gray-600">White, Alec</p>
-        </div>
-      </footer>
     </div>
   );
 }
