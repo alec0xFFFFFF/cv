@@ -28,6 +28,7 @@ interface UploadResponse {
     descriptive_words: string[];
     dominant_colors?: string[]; // Optional field
     mood?: string; // Optional field
+    quality_grade?: string;
   };
   filename: string;
   message: string;
@@ -65,7 +66,9 @@ export default function PhotoUpload() {
     lens: lensOptions[0],
     password: '',
   });
-  const [uploadResponse, setUploadResponse] = useState<UploadResponse | null>(null); // Use the defined interface
+  const [uploadResponse, setUploadResponse] = useState<UploadResponse | null>(
+    null
+  ); // Use the defined interface
   const fileInputRef = useRef<HTMLInputElement | null>(null); // Create a ref for the file input
 
   useEffect(() => {
@@ -311,7 +314,7 @@ export default function PhotoUpload() {
               </div>
 
               <Button
-                onClick={handleUpload}
+                onClick={() => handleUpload()} // Call handleUpload without arguments
                 className="w-full"
                 disabled={uploading}
               >
@@ -325,7 +328,7 @@ export default function PhotoUpload() {
             </div>
           )}
           {uploadResponse && ( // Display the upload response if available
-            <div className="mt-8 p-4 border border-gray-300 rounded-lg shadow-md">
+            <div className="mt-8 p-4 border border-gray-300 rounded-lg shadow-md relative">
               <h3 className="text-lg font-semibold">Upload Response:</h3>
               <div className="mt-4">
                 <img
@@ -333,6 +336,18 @@ export default function PhotoUpload() {
                   alt={uploadResponse.original_filename}
                   className="w-full h-auto rounded-lg mb-4"
                 />
+                {/* Quality Grade Overlay */}
+                <div
+                  className={`absolute top-2 right-2 text-black font-bold rounded-full p-2 ${
+                    uploadResponse.analysis.quality_grade >= 8
+                      ? 'bg-green-500'
+                      : uploadResponse.analysis.quality_grade >= 5
+                        ? 'bg-yellow-500'
+                        : 'bg-red-500'
+                  }`}
+                >
+                  {uploadResponse.analysis.quality_grade}/10
+                </div>
                 <p className="text-sm text-gray-700">
                   <strong>Description:</strong>{' '}
                   {uploadResponse.analysis.description}
