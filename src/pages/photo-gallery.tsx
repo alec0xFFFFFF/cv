@@ -38,11 +38,31 @@ export default function PhotoGallery() {
     rootMargin: '200px',
   });
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const randomTerm = defaultSearchTerms[Math.floor(Math.random() * defaultSearchTerms.length)];
     setSearchTerm(randomTerm);
   }, []);
+
+  // Custom debounce function
+  const debounce = useCallback((func: (...args: any[]) => void, delay: number) => {
+    let timeoutId: NodeJS.Timeout;
+    return (...args: any[]) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func(...args), delay);
+    };
+  }, []);
+
+  // Debounced search term setter
+  const debouncedSetSearchTerm = useCallback(
+    (value: string) => {
+      const timeoutId = setTimeout(() => setDebouncedSearchTerm(value), 300);
+      return () => clearTimeout(timeoutId);
+    },
+    []
+  );
 
   const fetchPhotos = useCallback(async () => {
     if (!hasMore || loading) return;
@@ -51,7 +71,7 @@ export default function PhotoGallery() {
     const params = new URLSearchParams({
       page: page.toString(),
       page_size: '20',
-      query: searchTerm
+      query: debouncedSearchTerm
     });
 
     try {
@@ -70,7 +90,8 @@ export default function PhotoGallery() {
     } finally {
       setLoading(false);
     }
-  }, [page, hasMore, loading, searchTerm]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, debouncedSearchTerm]);
 
   useEffect(() => {
     fetchPhotos();
@@ -99,7 +120,10 @@ export default function PhotoGallery() {
           <input
             type="text"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              debouncedSetSearchTerm(e.target.value);
+            }}
             placeholder="Search photos..."
             className="w-full p-2 border border-gray-300 rounded"
           />
