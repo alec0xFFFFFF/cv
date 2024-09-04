@@ -142,7 +142,7 @@ export default function PhotoGallery() {
             {photos.length > 0 ? (
               <div className="flex flex-wrap gap-4">
                 {photos.map((photo, index) => (
-                  <div key={index} className="flex-grow-0 flex-shrink-0 w-[calc(33.333%-1rem)] min-w-[250px] max-w-[400px]">
+                  <div key={index} className="flex-grow-0 flex-shrink-0 w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(33.333%-1rem)] max-w-[33.333vw]">
                     <div className="aspect-square">
                       <img 
                         src={photo.filename} 
