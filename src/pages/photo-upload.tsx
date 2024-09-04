@@ -124,7 +124,7 @@ export default function PhotoUpload() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <PhotoGalleryHeader onSearch={() => {}} currentPage="photo-upload" />
+      <PhotoGalleryHeader onSearch={() => {}} currentPage="photo-upload" searchTerm='' />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           <div
