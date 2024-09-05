@@ -12,7 +12,7 @@ export function ImageGrid({ photos, onImageClick }: ImageGridProps) {
       {photos.map((photo, index) => (
         <div
           key={index}
-          className="relative group mb-2 break-inside-avoid"
+          className="relative group break-inside-avoid"
           onClick={() => onImageClick(photo)}
         >
           <img
