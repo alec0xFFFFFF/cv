@@ -39,7 +39,7 @@ export function ImageGrid({ photos, onImageClick }: ImageGridProps) {
               )}
               {photo.location && (
                 <p className="absolute bottom-0 left-0 text-sm p-2">
-                  {photo.camera} // {photo.film_stock} // {photo.location}
+                  <span></span>{photo.camera} {' // '} {photo.film_stock} {' // '} {photo.location}
                 </p>
               )}
             </div>
