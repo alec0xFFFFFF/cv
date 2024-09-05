@@ -12,7 +12,7 @@ export function ImageGrid({ photos, onImageClick }: ImageGridProps) {
       {photos.map((photo, index) => (
         <div
           key={index}
-          className="relative group break-inside-avoid"
+          className="relative group break-inside-avoid mb-2 overflow-hidden"
           onClick={() => onImageClick(photo)}
         >
           <img
@@ -39,7 +39,9 @@ export function ImageGrid({ photos, onImageClick }: ImageGridProps) {
               )}
               {photo.location && (
                 <p className="absolute bottom-0 left-0 text-sm p-2">
-                  <span></span>{photo.camera} {' // '} {photo.film_stock} {' // '} {photo.location}
+                  <span></span>
+                  {photo.camera} {' // '} {photo.film_stock} {' // '}{' '}
+                  {photo.location}
                 </p>
               )}
             </div>

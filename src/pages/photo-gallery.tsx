@@ -21,14 +21,12 @@ const defaultSearchTerms = [
   'city skyline',
   'nature trails',
   'urban architecture',
-  'local cuisine',
   'street photography',
   'outdoor adventure',
   'city parks',
-  'coffee culture',
   'weekend getaway',
-  'urban gardens',
-  'bay',
+  'gardens',
+  'the bay',
 ];
 
 export default function PhotoGallery() {
