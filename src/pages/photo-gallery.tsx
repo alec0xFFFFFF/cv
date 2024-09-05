@@ -183,6 +183,11 @@ export default function PhotoGallery() {
                 )}
               </div>
             )}
+            {!hasMore && photos.length > 0 && (
+              <div className="text-center text-gray-500 mt-8 mb-4">
+                No more photos to load.
+              </div>
+            )}
           </>
         )}
       </main>

@@ -37,20 +37,9 @@ export function ImageGrid({ photos, onImageClick }: ImageGridProps) {
                   </div>
                 </div>
               )}
-              {photo.critique && (
-                <p className="text-sm mb-2">
-                  <br />
-                  <strong>Critique:</strong>
-                  <br />
-                  {photo.critique}
-                </p>
-              )}
-              {photo.critique && photo.description && (
-                <hr className="border-white border-opacity-50 my-2" />
-              )}
-              {photo.description && (
-                <p className="text-sm">
-                  <strong>Description:</strong> {photo.description}
+              {photo.location && (
+                <p className="absolute bottom-0 left-0 text-sm p-2">
+                  {photo.camera} // {photo.film_stock} // {photo.location}
                 </p>
               )}
             </div>
