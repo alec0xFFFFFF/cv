@@ -12,7 +12,7 @@ export function ImageGrid({ photos, onImageClick }: ImageGridProps) {
       {photos.map((photo, index) => (
         <div
           key={index}
-          className="relative group break-inside-avoid mb-2 overflow-hidden"
+          className="relative group break-inside-avoid pb-2"
           onClick={() => onImageClick(photo)}
         >
           <img
@@ -20,7 +20,7 @@ export function ImageGrid({ photos, onImageClick }: ImageGridProps) {
             alt={photo.description || 'Photo'}
             className="w-full h-auto object-cover cursor-pointer"
           />
-          <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-y-auto overflow-x-hidden">
+          <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-hidden">
             <div className="p-4 text-white">
               {photo.quality_grade !== undefined && (
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

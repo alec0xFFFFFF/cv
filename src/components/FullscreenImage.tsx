@@ -60,7 +60,7 @@ export const FullscreenImage: React.FC<FullscreenImageProps> = ({
     >
       <button
         onClick={onClose}
-        className="absolute top-6 right-6 text-white hover:text-gray-300 transition-colors duration-200"
+        className="absolute top-6 right-6 text-white hover:text-gray-300 transition-colors duration-200 z-50"
         aria-label="Close fullscreen view"
       >
         <X size={28} />
