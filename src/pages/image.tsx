@@ -1,40 +1,33 @@
-import { useState } from 'react';
-import { useLoaderData, useSearchParams } from '@remix-run/react';
-import { LoaderFunction, json } from '@remix-run/node';
-import { Editor } from '@/components/Editor';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import Image from 'next/image';
+import Editor from '@/components/Editor';
+import { Photo } from '@/components/types';
 
-interface LoaderData {
-  imageUrl: string;
-  photoInfo: Photo; // Assuming Photo type is imported or defined
+interface ImageInfo {
+  url: string;
+  photoInfo: Photo;
 }
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const url = new URL(request.url);
-  const filename = url.searchParams.get('filename');
-
-  if (!filename) {
-    throw new Response('Filename is required', { status: 400 });
-  }
-
-  const response = await fetch(`/get-image-info/${filename}`);
-  if (!response.ok) {
-    throw new Response('Failed to fetch image info', {
-      status: response.status,
-    });
-  }
-
-  const data = await response.json();
-  return json<LoaderData>({
-    imageUrl: data.url,
-    photoInfo: data.photoInfo, // Assuming the API returns photo information
-  });
-};
-
 export default function ImageDisplay() {
-  const { imageUrl, photoInfo } = useLoaderData<LoaderData>();
-  const [searchParams] = useSearchParams();
-  const filename = searchParams.get('filename');
+  const router = useRouter();
+  const { filename } = router.query;
+  const [imageInfo, setImageInfo] = useState<ImageInfo | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
+
+  useEffect(() => {
+    if (filename) {
+      fetch(`/api/get-image-info/${filename}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch image info');
+          }
+          return response.json();
+        })
+        .then((data) => setImageInfo(data))
+        .catch((error) => console.error('Error fetching image info:', error));
+    }
+  }, [filename]);
 
   const handleOpenEditor = () => setIsEditorOpen(true);
   const handleCloseEditor = () => setIsEditorOpen(false);
@@ -48,12 +41,14 @@ export default function ImageDisplay() {
         position: 'relative',
       }}
     >
-      {imageUrl ? (
+      {imageInfo?.url ? (
         <>
-          <img
-            src={imageUrl}
+          <Image
+            src={imageInfo.url}
             alt={filename || 'Fullscreen image'}
             style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            width={100}
+            height={100}
           />
           <button
             onClick={handleOpenEditor}
@@ -75,7 +70,9 @@ export default function ImageDisplay() {
       ) : (
         <p>No image URL available</p>
       )}
-      {isEditorOpen && <Editor photo={photoInfo} onClose={handleCloseEditor} />}
+      {isEditorOpen && (
+        <Editor photo={imageInfo?.photoInfo} onClose={handleCloseEditor} />
+      )}
     </div>
   );
 }

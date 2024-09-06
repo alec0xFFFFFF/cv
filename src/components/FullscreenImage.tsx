@@ -73,16 +73,12 @@ export const FullscreenImage: React.FC<FullscreenImageProps> = ({
         className="relative w-full h-full max-w-7xl mx-auto p-4 flex flex-col md:flex-row items-center md:items-start overflow-hidden"
       >
         <div className="w-full md:w-2/3 h-1/2 md:h-full flex items-center justify-center mb-4 md:mb-0">
-          <div className="relative w-full h-full">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-full h-full max-w-full max-h-full aspect-square overflow-hidden shadow-2xl">
-                <img
-                  src={photo.filename}
-                  alt={photo.description || 'Photo'}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
+          <div className="relative w-full h-full flex items-center justify-center">
+            <img
+              src={photo.filename}
+              alt={photo.description || 'Photo'}
+              className="max-w-full max-h-full object-contain shadow-2xl"
+            />
           </div>
         </div>
         <div className="w-full md:w-1/3 h-1/2 md:h-full overflow-y-auto bg-gray-900 bg-opacity-80 p-6 rounded-lg mx-8">
