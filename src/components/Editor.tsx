@@ -9,7 +9,7 @@ interface EditorProps {
   photo: Photo;
   onClose: () => void;
   onSubmitEdit: () => void;
-  onRegradeEdit: () => void;
+  onRegradeEdit: (updatedPhoto: Partial<Photo>) => void;
 }
 
 const Editor: React.FC<EditorProps> = ({
@@ -23,6 +23,14 @@ const Editor: React.FC<EditorProps> = ({
   const [exposure, setExposure] = useState(0);
   const [rotation, setRotation] = useState(0);
   const [zoom, setZoom] = useState(1);
+  const [isRegrading, setIsRegrading] = useState(false);
+
+  const calculateZoom = (rotation: number) => {
+    const radians = (rotation * Math.PI) / 180;
+    return 1 / (Math.abs(Math.cos(radians)) + Math.abs(Math.sin(radians)));
+  };
+
+  const adjustedZoom = zoom * calculateZoom(rotation);
 
   const renderSlider = (
     label: string,
@@ -54,42 +62,99 @@ const Editor: React.FC<EditorProps> = ({
   ) => {
     if (!value) return null;
 
+    let valueClass = '';
+    if (label === 'Quality') {
+      const numericValue =
+        typeof value === 'string' ? parseFloat(value) : value;
+      valueClass =
+        numericValue >= 8
+          ? 'font-bold rounded-full p-1 bg-green-500'
+          : numericValue >= 5
+            ? 'font-bold rounded-full p-1 bg-yellow-500'
+            : 'font-bold rounded-full p-1 bg-red-500';
+      value = `${value}/10`;
+    }
+
     return (
       <div className="flex items-center space-x-2">
         {React.createElement(icon, { size: 16, className: 'text-gray-400' })}
         <span className="text-sm text-gray-300">{label}:</span>
-        <span className="text-sm font-medium text-white">{value}</span>
+        <span className={`text-sm font-medium text-white ${valueClass}`}>
+          {value}
+        </span>
       </div>
     );
   };
 
+  const handleRegradeEdit = async () => {
+    setIsRegrading(true);
+    try {
+      const formData = new FormData();
+      const response = await fetch(photo.filename);
+      const blob = await response.blob();
+      formData.append('image', blob, 'image.jpg');
+      formData.append('photoId', photo.filename.toString());
+
+      const result = await fetch('/analyze-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!result.ok) {
+        throw new Error(`HTTP error! status: ${result.status}`);
+      }
+
+      const data = await result.json();
+
+      const updatedPhoto: Partial<Photo> = {
+        quality_grade: data.quality_grade,
+        critique: data.critique,
+        edit_instructions: data.edit_instructions,
+      };
+
+      onRegradeEdit(updatedPhoto);
+    } catch (error) {
+      console.error('Error regrading image:', error);
+      // You might want to show an error message to the user here
+    } finally {
+      setIsRegrading(false);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50">
       <Button
         variant="ghost"
         size="icon"
-        className="absolute top-4 right-4 text-white"
+        className="absolute top-6 right-6 text-white hover:text-gray-300 transition-colors duration-200"
         onClick={onClose}
       >
-        <X size={24} />
+        <X size={28} />
       </Button>
-      <div className="flex w-full h-full max-w-7xl mx-auto p-4">
-        <div className="flex-grow mr-2">
-          <div className="h-full flex items-center justify-center bg-slate-950 rounded-lg">
-            <img
-              src={photo.filename}
-              alt={photo.description || 'Photo'}
-              className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
-              style={{
-                filter: `brightness(${brightness + 1}) contrast(${contrast + 1}) saturate(${exposure + 1})`,
-                transform: `rotate(${rotation}deg) scale(${zoom})`,
-              }}
-            />
+      <div className="relative w-full h-full max-w-7xl mx-auto p-4 flex flex-col md:flex-row items-center md:items-start overflow-hidden">
+        <div className="w-full md:w-2/3 h-1/2 md:h-full flex items-center justify-center mb-4 md:mb-0">
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-full h-full max-w-full max-h-full aspect-square overflow-hidden shadow-2xl">
+                <img
+                  src={photo.filename}
+                  alt={photo.description || 'Photo'}
+                  className="w-full h-full object-cover"
+                  style={{
+                    filter: `brightness(${brightness + 1}) contrast(${contrast + 1}) saturate(${exposure + 1})`,
+                    transform: `rotate(${rotation}deg) scale(${adjustedZoom})`,
+                    transformOrigin: 'center center',
+                  }}
+                />
+              </div>
+            </div>
           </div>
         </div>
-        <Card className="w-96 bg-slate-900 text-white p-4 overflow-y-auto">
+        <Card className="w-full md:w-1/3 h-1/2 md:h-full overflow-y-auto bg-gray-900 bg-opacity-80 p-6 rounded-lg mx-8">
           <CardHeader>
-            <CardTitle>Photo Editor</CardTitle>
+            <CardTitle className="text-2xl font-bold text-white">
+              Photo Editor
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {renderSlider('Brightness', brightness, -1, 1, 0.01, setBrightness)}
@@ -98,20 +163,23 @@ const Editor: React.FC<EditorProps> = ({
             {renderSlider('Rotation', rotation, 0, 360, 1, setRotation)}
             {renderSlider('Zoom', zoom, 1, 3, 0.1, setZoom)}
 
-            <Button
-              className="flex-1"
-              variant="secondary"
-              onClick={onRegradeEdit}
-            >
-              Regrade Edit
-            </Button>
-            <Button className="flex-1" onClick={onSubmitEdit}>
-              Submit Edit
-            </Button>
+            <div className="flex space-x-2">
+              <Button
+                className="flex-1"
+                variant="secondary"
+                onClick={handleRegradeEdit}
+                disabled={isRegrading}
+              >
+                {isRegrading ? 'Regrading...' : 'Regrade Edit'}
+              </Button>
+              <Button className="flex-1" onClick={onSubmitEdit}>
+                Submit Edit
+              </Button>
+            </div>
 
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Photo Details</h3>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 {renderInfoItem(Star, 'Quality', photo.quality_grade)}
               </div>
               {photo.critique && (
