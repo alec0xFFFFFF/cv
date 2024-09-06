@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, MouseEvent } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Star, Download } from 'lucide-react';
 import { Photo } from './types';
 import { Slider } from '@/components/ui/slider';
@@ -220,9 +220,13 @@ const Editor: React.FC<EditorProps> = ({
 
   // Attach mouse event listeners
   useEffect(() => {
-    const handleMouseMoveWrapper = (e: MouseEvent) => {
+    const handleMouseMoveWrapper = (e: globalThis.MouseEvent) => {
       if (isPanning.current) {
-        handleMouseMove(e as unknown as React.MouseEvent<HTMLDivElement>);
+        handleMouseMove({
+          clientX: e.clientX,
+          clientY: e.clientY,
+          preventDefault: e.preventDefault.bind(e),
+        } as React.MouseEvent<HTMLDivElement>);
       }
     };
 
