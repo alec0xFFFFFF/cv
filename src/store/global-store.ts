@@ -68,7 +68,11 @@ export interface AppStore {
   setCanvas: (value: HTMLCanvasElement) => void;
   gl?: WebGL;
   startGlTexture: WebGLTexture | null;
-  getUniformValues: () => [WebGLTexture | null, { brightness: number; contrast: number }, { exposure: number }];
+  getUniformValues: () => [
+    WebGLTexture | null,
+    { brightness: number; contrast: number },
+    { exposure: number },
+  ];
   shaderOnMount: () => void;
   render: () => void;
   onAttributeChange: () => void;

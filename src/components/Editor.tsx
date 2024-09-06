@@ -74,7 +74,7 @@ const Editor: React.FC<EditorProps> = ({
         <X size={24} />
       </Button>
       <div className="flex w-full h-full max-w-7xl mx-auto p-4">
-        <div className="flex-grow mr-4">
+        <div className="flex-grow mr-2">
           <div className="h-full flex items-center justify-center bg-slate-950 rounded-lg">
             <img
               src={photo.filename}
@@ -87,7 +87,7 @@ const Editor: React.FC<EditorProps> = ({
             />
           </div>
         </div>
-        <Card className="w-96 bg-slate-900 text-white">
+        <Card className="w-96 bg-slate-900 text-white p-4 overflow-y-auto">
           <CardHeader>
             <CardTitle>Photo Editor</CardTitle>
           </CardHeader>
@@ -98,18 +98,16 @@ const Editor: React.FC<EditorProps> = ({
             {renderSlider('Rotation', rotation, 0, 360, 1, setRotation)}
             {renderSlider('Zoom', zoom, 1, 3, 0.1, setZoom)}
 
-            <div className="flex space-x-4">
-              <Button className="flex-1" onClick={onSubmitEdit}>
-                Submit Edit
-              </Button>
-              <Button
-                className="flex-1"
-                variant="secondary"
-                onClick={onRegradeEdit}
-              >
-                Regrade Edit
-              </Button>
-            </div>
+            <Button
+              className="flex-1"
+              variant="secondary"
+              onClick={onRegradeEdit}
+            >
+              Regrade Edit
+            </Button>
+            <Button className="flex-1" onClick={onSubmitEdit}>
+              Submit Edit
+            </Button>
 
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Photo Details</h3>
