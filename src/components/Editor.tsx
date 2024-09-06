@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, MouseEvent } from 'react';
-import { X, Star, Move } from 'lucide-react';
+import { X, Star, Download } from 'lucide-react';
 import { Photo } from './types';
 import { Slider } from '@/components/ui/slider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,65 +27,71 @@ const Editor: React.FC<EditorProps> = ({
   const [showGrid, setShowGrid] = useState(false);
   const [aspectRatio, setAspectRatio] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [isPanningEnabled, setIsPanningEnabled] = useState(false);
   const isPanning = useRef(false);
   const startPan = useRef({ x: 0, y: 0 });
   const imageRef = useRef<HTMLImageElement>(null);
+  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [selectedAspectRatio, setSelectedAspectRatio] = useState('original');
 
-  // Calculate the aspect ratio of the image
+  // Calculate the aspect ratio and size of the image
   useEffect(() => {
     const img = new Image();
     img.onload = () => {
       setAspectRatio(img.width / img.height);
+      setImageSize({ width: img.width, height: img.height });
+      // Reset zoom to 1 on initial load
+      setZoom(1);
+      setAdjustedZoom(1);
     };
     img.src = photo.filename;
   }, [photo.filename]);
 
-  // Function to calculate minimum zoom for proper image covering
-  const calculateMinZoom = (rotation: number, aspectRatio: number) => {
+  // Adjust container size to fit the image
+  useEffect(() => {
+    if (containerRef.current && imageSize.width > 0 && imageSize.height > 0) {
+      const container = containerRef.current;
+      const containerAspectRatio =
+        container.clientWidth / container.clientHeight;
+
+      let newWidth, newHeight;
+      if (aspectRatio > containerAspectRatio) {
+        // Image is wider than container
+        newWidth = container.clientWidth;
+        newHeight = newWidth / aspectRatio;
+      } else {
+        // Image is taller than container
+        newHeight = container.clientHeight;
+        newWidth = newHeight * aspectRatio;
+      }
+
+      container.style.width = `${newWidth}px`;
+      container.style.height = `${newHeight}px`;
+    }
+  }, [imageSize, aspectRatio]);
+
+  const calculateMinZoom = (rotation: number) => {
     const radians = (rotation * Math.PI) / 180;
     const sinR = Math.abs(Math.sin(radians));
     const cosR = Math.abs(Math.cos(radians));
-
-    // Avoid unnecessary zoom when rotation is 0 or 360
-    if (rotation % 360 === 0) {
-      return 1;
-    }
-
-    if (aspectRatio >= 1) {
-      // Landscape or square
-      const adj = Math.max(
-        sinR + cosR / aspectRatio,
-        cosR + sinR / aspectRatio
-      );
-      console.log('adj', adj);
-      return adj;
-    } else {
-      // Portrait
-      return Math.max(sinR * aspectRatio + cosR, cosR * aspectRatio + sinR);
-    }
+    return Math.max(1, (sinR + cosR) / Math.min(aspectRatio, 1 / aspectRatio));
   };
 
-  const minZoom = calculateMinZoom(rotation, aspectRatio);
+  const minZoom = calculateMinZoom(rotation);
   const [adjustedZoom, setAdjustedZoom] = useState(1);
 
-  // Adjust zoom when the rotation or zoom state changes
   useEffect(() => {
-    const calculatedMinZoom = calculateMinZoom(rotation, aspectRatio);
-    setAdjustedZoom(Math.max(zoom, calculatedMinZoom));
-  }, [zoom, rotation, aspectRatio]);
+    setAdjustedZoom(Math.max(zoom, minZoom));
+  }, [zoom, minZoom]);
 
-  // Handle changes to rotation, ensuring zoom meets minimum covering requirement
   const handleRotationChange = (newRotation: number) => {
     setRotation(newRotation);
-    const newMinZoom = calculateMinZoom(newRotation, aspectRatio);
+    const newMinZoom = calculateMinZoom(newRotation);
     setZoom((prevZoom) => Math.max(prevZoom, newMinZoom));
   };
 
-  // Handle zoom changes to prevent zooming out beyond minZoom
   const handleZoomChange = (newZoom: number) => {
-    const updatedZoom = Math.max(newZoom, minZoom); // Ensure zoom is at least minZoom
-    setZoom(updatedZoom); // Update the zoom state directly
+    setZoom(Math.max(newZoom, minZoom));
   };
 
   const renderSlider = (
@@ -177,15 +183,17 @@ const Editor: React.FC<EditorProps> = ({
   };
 
   // Mouse down event to start panning
-  const handleMouseDown = (e: MouseEvent) => {
-    if (!isPanningEnabled) return;
-    isPanning.current = true;
-    startPan.current = { x: e.clientX - pan.x, y: e.clientY - pan.y };
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.currentTarget === containerRef.current) {
+      e.preventDefault();
+      isPanning.current = true;
+      startPan.current = { x: e.clientX - pan.x, y: e.clientY - pan.y };
+    }
   };
 
   // Mouse move event to update pan position
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isPanningEnabled || !isPanning.current || !imageRef.current) return;
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isPanning.current || !imageRef.current) return;
 
     const image = imageRef.current;
     const containerWidth = image.offsetWidth;
@@ -212,20 +220,19 @@ const Editor: React.FC<EditorProps> = ({
 
   // Attach mouse event listeners
   useEffect(() => {
-    window.addEventListener('mousemove', handleMouseMove);
+    const handleMouseMoveWrapper = (e: MouseEvent) => {
+      if (isPanning.current) {
+        handleMouseMove(e as unknown as React.MouseEvent<HTMLDivElement>);
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMoveWrapper);
     window.addEventListener('mouseup', handleMouseUp);
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mousemove', handleMouseMoveWrapper);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, []);
-
-  const togglePanning = () => {
-    setIsPanningEnabled(!isPanningEnabled);
-    if (!isPanningEnabled) {
-      setPan({ x: 0, y: 0 }); // Reset pan position when enabling panning
-    }
-  };
+  }, [handleMouseMove, handleMouseUp]);
 
   const renderGrid = () => {
     if (!imageRef.current) return null;
@@ -251,13 +258,126 @@ const Editor: React.FC<EditorProps> = ({
     );
   };
 
+  const aspectRatios = [
+    { label: 'Original', value: 'original' },
+    { label: '1:1', value: '1:1' },
+    { label: '4:3', value: '4:3' },
+    { label: '16:9', value: '16:9' },
+    { label: '3:2', value: '3:2' },
+  ];
+
+  const handleAspectRatioChange = (value: string) => {
+    setSelectedAspectRatio(value);
+    if (value !== 'original') {
+      const [width, height] = value.split(':').map(Number);
+      const newAspectRatio = width / height;
+      setAspectRatio(newAspectRatio);
+
+      // Reset container size based on the new aspect ratio
+      if (containerRef.current) {
+        const container = containerRef.current;
+        const parentWidth = container.parentElement?.offsetWidth || 0;
+        const parentHeight = container.parentElement?.offsetHeight || 0;
+
+        if (newAspectRatio > parentWidth / parentHeight) {
+          // Fit to width
+          container.style.width = `${parentWidth}px`;
+          container.style.height = `${parentWidth / newAspectRatio}px`;
+        } else {
+          // Fit to height
+          container.style.height = `${parentHeight}px`;
+          container.style.width = `${parentHeight * newAspectRatio}px`;
+        }
+      }
+    } else {
+      // Reset to original aspect ratio and size
+      const originalAspectRatio = imageSize.width / imageSize.height;
+      setAspectRatio(originalAspectRatio);
+      if (containerRef.current) {
+        const container = containerRef.current;
+        const parentWidth = container.parentElement?.offsetWidth || 0;
+        const parentHeight = container.parentElement?.offsetHeight || 0;
+
+        if (originalAspectRatio > parentWidth / parentHeight) {
+          // Fit to width
+          container.style.width = `${parentWidth}px`;
+          container.style.height = `${parentWidth / originalAspectRatio}px`;
+        } else {
+          // Fit to height
+          container.style.height = `${parentHeight}px`;
+          container.style.width = `${parentHeight * originalAspectRatio}px`;
+        }
+      }
+    }
+
+    // Reset pan and zoom
+    setPan({ x: 0, y: 0 });
+    setZoom(1);
+    setAdjustedZoom(1);
+  };
+
+  const handleDownload = () => {
+    if (!imageRef.current || !containerRef.current) return;
+
+    // Create a new image element
+    const img = new Image();
+    img.crossOrigin = 'anonymous'; // This may be necessary depending on your image source
+    img.src = imageRef.current.src;
+
+    img.onload = () => {
+      // Create a container div
+      const container = document.createElement('div');
+      container.style.width = `${containerRef.current!.offsetWidth}px`;
+      container.style.height = `${containerRef.current!.offsetHeight}px`;
+      container.style.position = 'relative';
+      container.style.overflow = 'hidden';
+
+      // Create an img element with all the transformations
+      const transformedImg = document.createElement('img');
+      transformedImg.src = img.src;
+      transformedImg.style.width = '100%';
+      transformedImg.style.height = '100%';
+      transformedImg.style.objectFit = 'contain';
+      transformedImg.style.filter = `brightness(${brightness + 1}) contrast(${contrast + 1}) saturate(${exposure + 1})`;
+      transformedImg.style.transform = `rotate(${rotation}deg) scale(${adjustedZoom}) translate(${pan.x}px, ${pan.y}px)`;
+      transformedImg.style.transformOrigin = 'center';
+
+      // Append the img to the container
+      container.appendChild(transformedImg);
+
+      // Use html2canvas to create an image from our container
+      import('html2canvas').then((html2canvas) => {
+        html2canvas
+          .default(container, {
+            backgroundColor: null,
+            scale: 2, // Increase this for higher resolution
+          })
+          .then((canvas) => {
+            // Convert canvas to blob
+            canvas.toBlob((blob) => {
+              if (blob) {
+                // Create a temporary URL for the blob
+                const url = URL.createObjectURL(blob);
+
+                // Create download link
+                const link = document.createElement('a');
+                link.download = 'edited_image.png';
+                link.href = url;
+                link.click();
+
+                // Clean up the temporary URL
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+              }
+            }, 'image/png');
+          });
+      });
+    };
+  };
+
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50"
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      style={{ cursor: isPanningEnabled ? 'move' : 'default' }}
+      style={{ cursor: isPanning.current ? 'move' : 'default' }}
     >
       <Button
         variant="ghost"
@@ -269,16 +389,31 @@ const Editor: React.FC<EditorProps> = ({
       </Button>
       <div className="relative w-full h-full max-w-7xl mx-auto p-4 flex flex-col md:flex-row items-center md:items-start overflow-hidden">
         <div className="w-full md:w-2/3 h-1/2 md:h-full flex items-center justify-center mb-4 md:mb-0">
-          <div className="relative w-full h-full flex items-center justify-center">
+          <div
+            ref={containerRef}
+            className="relative flex items-center justify-center overflow-hidden"
+            style={{
+              width: '100%',
+              height: '100%',
+              aspectRatio: aspectRatio,
+              cursor: isPanning.current ? 'move' : 'default',
+            }}
+            onMouseDown={handleMouseDown}
+          >
             <img
               ref={imageRef}
               src={photo.filename}
               alt={photo.description || 'Photo'}
-              className="max-w-full max-h-full object-contain"
+              className="max-w-none max-h-none"
               style={{
                 filter: `brightness(${brightness + 1}) contrast(${contrast + 1}) saturate(${exposure + 1})`,
                 transform: `rotate(${rotation}deg) scale(${adjustedZoom}) translate(${pan.x}px, ${pan.y}px)`,
+                transformOrigin: 'center',
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
               }}
+              draggable={false}
             />
             {showGrid && renderGrid()}
           </div>
@@ -290,6 +425,29 @@ const Editor: React.FC<EditorProps> = ({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-300">
+                Aspect Ratio
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {aspectRatios.map((ratio) => (
+                  <Button
+                    key={ratio.value}
+                    onClick={() => handleAspectRatioChange(ratio.value)}
+                    variant={
+                      selectedAspectRatio === ratio.value
+                        ? 'default'
+                        : 'secondary'
+                    }
+                    size="sm"
+                    className="flex-grow"
+                  >
+                    {ratio.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
             {renderSlider('Brightness', brightness, -1, 1, 0.01, setBrightness)}
             {renderSlider('Contrast', contrast, -1, 1, 0.01, setContrast)}
             {renderSlider('Exposure', exposure, -1, 1, 0.01, setExposure)}
@@ -305,7 +463,7 @@ const Editor: React.FC<EditorProps> = ({
               'Zoom',
               zoom,
               minZoom,
-              Math.max(minZoom * 3, 3),
+              Math.max(6, minZoom * 1.5),
               0.01,
               handleZoomChange
             )}
@@ -323,25 +481,6 @@ const Editor: React.FC<EditorProps> = ({
               </label>
             </div>
 
-            <div className="flex items-center space-x-2">
-              <Button
-                onClick={togglePanning}
-                variant={isPanningEnabled ? 'default' : 'secondary'}
-                className="flex items-center space-x-2"
-              >
-                <Move size={16} />
-                <span>
-                  {isPanningEnabled ? 'Disable Panning' : 'Enable Panning'}
-                </span>
-              </Button>
-            </div>
-
-            {isPanningEnabled && (
-              <p className="text-sm text-gray-300 italic">
-                Click and drag the image to pan
-              </p>
-            )}
-
             <div className="flex space-x-2">
               <Button
                 className="flex-1"
@@ -355,6 +494,15 @@ const Editor: React.FC<EditorProps> = ({
                 Submit Edit
               </Button>
             </div>
+
+            <Button
+              className="w-full"
+              onClick={handleDownload}
+              variant="outline"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Download Edited Image
+            </Button>
 
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Photo Details</h3>
