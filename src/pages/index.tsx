@@ -8,6 +8,7 @@ import { GlobeIcon, MailIcon, PhoneIcon, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RESUME_DATA } from '@/data/resume-data';
 import { ProjectCard } from '@/components/project-card';
+import '../app/globals.css';
 
 interface ExtendedMetadata extends Metadata {
   'og:title'?: string;

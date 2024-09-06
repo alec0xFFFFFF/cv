@@ -8,17 +8,20 @@ import {
   Flame,
   FlaskConical,
   Ruler,
+  Edit,
 } from 'lucide-react';
 import { Photo } from './types';
 
 interface FullscreenImageProps {
   photo: Photo;
   onClose: () => void;
+  onOpenEditor: () => void;
 }
 
 export const FullscreenImage: React.FC<FullscreenImageProps> = ({
   photo,
   onClose,
+  onOpenEditor,
 }) => {
   const renderInfoItem = (
     icon: React.ElementType,
@@ -107,13 +110,20 @@ export const FullscreenImage: React.FC<FullscreenImageProps> = ({
             </div>
           )}
           {photo.edit_instructions && (
-            <div>
+            <div className="mb-4">
               <h3 className="text-white font-semibold mb-2">
                 Edit Instructions:
               </h3>
               <p className="text-gray-300 text-sm">{photo.edit_instructions}</p>
             </div>
           )}
+          <button
+            onClick={onOpenEditor}
+            className="flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
+          >
+            <Edit size={16} className="mr-2" />
+            Open Editor
+          </button>
         </div>
       </div>
     </div>

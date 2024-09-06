@@ -4,6 +4,7 @@ import { useInView } from 'react-intersection-observer';
 import { PhotoGalleryHeader } from '@/components/PhotoGalleryHeader';
 import { FullscreenImage } from '@/components/FullscreenImage';
 import { ImageGrid } from '@/components/ImageGrid';
+import Editor from '@/components/Editor';
 import { Photo } from '@/components/types';
 import '../app/globals.css';
 
@@ -44,6 +45,7 @@ export default function PhotoGallery() {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [searchTriggered, setSearchTriggered] = useState(false);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
 
   useEffect(() => {
     const randomTerm =
@@ -146,6 +148,26 @@ export default function PhotoGallery() {
     [debouncedSetSearchTerm]
   );
 
+  const handleOpenEditor = useCallback(() => {
+    setIsEditorOpen(true);
+  }, []);
+
+  const handleCloseEditor = useCallback(() => {
+    setIsEditorOpen(false);
+  }, []);
+
+  const handleSubmitEdit = useCallback(() => {
+    // Implement the logic to submit the edit
+    console.log('Submitting edit');
+    // You might want to close the editor here
+    setIsEditorOpen(false);
+  }, []);
+
+  const handleRegradeEdit = useCallback(() => {
+    // Implement the logic to regrade the edit
+    console.log('Regrading edit');
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
       <PhotoGalleryHeader
@@ -193,6 +215,15 @@ export default function PhotoGallery() {
         <FullscreenImage
           photo={selectedPhoto}
           onClose={handleCloseFullscreen}
+          onOpenEditor={handleOpenEditor}
+        />
+      )}
+      {isEditorOpen && selectedPhoto && (
+        <Editor
+          photo={selectedPhoto}
+          onClose={handleCloseEditor}
+          onSubmitEdit={handleSubmitEdit}
+          onRegradeEdit={handleRegradeEdit}
         />
       )}
     </div>

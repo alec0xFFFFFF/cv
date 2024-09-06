@@ -124,7 +124,8 @@ export const RESUME_DATA = {
     {
       title: 'Photo Gallery',
       techStack: ['Next.js', 'Tailwind CSS', 'React', 'Gemini', 'Pinecone'],
-      description: 'A film photo gallery that judges my frames and has a smart search indexing images as they are uploaded.',
+      description:
+        'A film photo gallery that judges my frames and has a smart search indexing images as they are uploaded.',
       logo: PhotoGalleryLogo,
       link: {
         label: 'Photo Gallery',
