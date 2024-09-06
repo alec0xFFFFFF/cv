@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Star, Download } from 'lucide-react';
+import { X, Star, Download, RotateCcw } from 'lucide-react';
 import { Photo } from './types';
 import { Slider } from '@/components/ui/slider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -100,12 +100,16 @@ const Editor: React.FC<EditorProps> = ({
     min: number,
     max: number,
     step: number,
-    onChange: (value: number) => void
+    onChange: (value: number) => void,
+    unit: string
   ) => (
     <div className="space-y-2">
       <div className="flex justify-between">
         <span className="text-sm font-medium text-gray-300">{label}</span>
-        <span className="text-sm text-gray-400">{value.toFixed(2)}</span>
+        <span className="text-sm text-gray-400">
+          {value.toFixed(2)}
+          {unit}
+        </span>
       </div>
       <Slider
         min={min}
@@ -378,6 +382,25 @@ const Editor: React.FC<EditorProps> = ({
     };
   };
 
+  // Add these state variables for initial values
+  const [initialBrightness] = useState(0);
+  const [initialContrast] = useState(0);
+  const [initialExposure] = useState(0);
+  const [initialRotation] = useState(0);
+  const [initialZoom] = useState(1);
+  const [initialPan] = useState({ x: 0, y: 0 });
+
+  // Add this function to reset all values
+  const handleResetChanges = () => {
+    setBrightness(initialBrightness);
+    setContrast(initialContrast);
+    setExposure(initialExposure);
+    setRotation(initialRotation);
+    setZoom(initialZoom);
+    setPan(initialPan);
+    setAdjustedZoom(initialZoom);
+  };
+
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50"
@@ -386,10 +409,10 @@ const Editor: React.FC<EditorProps> = ({
       <Button
         variant="ghost"
         size="icon"
-        className="absolute top-6 right-6 text-white hover:text-gray-300 transition-colors duration-200"
+        className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors duration-200 z-50"
         onClick={onClose}
       >
-        <X size={28} />
+        <X size={24} />
       </Button>
       <div className="relative w-full h-full max-w-7xl mx-auto p-4 flex flex-col md:flex-row items-center md:items-start overflow-hidden">
         <div className="w-full md:w-2/3 h-1/2 md:h-full flex items-center justify-center mb-4 md:mb-0">
@@ -452,16 +475,25 @@ const Editor: React.FC<EditorProps> = ({
               </div>
             </div>
 
-            {renderSlider('Brightness', brightness, -1, 1, 0.01, setBrightness)}
-            {renderSlider('Contrast', contrast, -1, 1, 0.01, setContrast)}
-            {renderSlider('Exposure', exposure, -1, 1, 0.01, setExposure)}
+            {renderSlider(
+              'Brightness',
+              brightness,
+              -1,
+              1,
+              0.01,
+              setBrightness,
+              '%'
+            )}
+            {renderSlider('Contrast', contrast, -1, 1, 0.01, setContrast, '%')}
+            {renderSlider('Exposure', exposure, -1, 1, 0.01, setExposure, 'EV')}
             {renderSlider(
               'Rotation',
               rotation,
               0,
               360,
               1,
-              handleRotationChange
+              handleRotationChange,
+              '°'
             )}
             {renderSlider(
               'Zoom',
@@ -469,7 +501,8 @@ const Editor: React.FC<EditorProps> = ({
               minZoom,
               Math.max(6, minZoom * 1.5),
               0.01,
-              handleZoomChange
+              handleZoomChange,
+              'x'
             )}
 
             <div className="flex items-center space-x-2">
@@ -506,6 +539,15 @@ const Editor: React.FC<EditorProps> = ({
             >
               <Download className="mr-2 h-4 w-4" />
               Download Edited Image
+            </Button>
+
+            <Button
+              className="w-full mt-2"
+              onClick={handleResetChanges}
+              variant="outline"
+            >
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Undo All Changes
             </Button>
 
             <div className="space-y-4">
