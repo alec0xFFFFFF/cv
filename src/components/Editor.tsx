@@ -327,59 +327,64 @@ const Editor: React.FC<EditorProps> = ({
   const handleDownload = () => {
     if (!imageRef.current || !containerRef.current) return;
 
-    // Create a new image element
-    const img = new Image();
-    img.crossOrigin = 'anonymous'; // This may be necessary depending on your image source
-    img.src = imageRef.current.src;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    img.onload = () => {
-      // Create a container div
-      const container = document.createElement('div');
-      container.style.width = `${containerRef.current!.offsetWidth}px`;
-      container.style.height = `${containerRef.current!.offsetHeight}px`;
-      container.style.position = 'relative';
-      container.style.overflow = 'hidden';
+    // Set canvas size to match the container
+    canvas.width = containerRef.current.offsetWidth;
+    canvas.height = containerRef.current.offsetHeight;
 
-      // Create an img element with all the transformations
-      const transformedImg = document.createElement('img');
-      transformedImg.src = img.src;
-      transformedImg.style.width = '100%';
-      transformedImg.style.height = '100%';
-      transformedImg.style.objectFit = 'contain';
-      transformedImg.style.filter = `brightness(${brightness + 1}) contrast(${contrast + 1}) saturate(${exposure + 1})`;
-      transformedImg.style.transform = `rotate(${rotation}deg) scale(${adjustedZoom}) translate(${pan.x}px, ${pan.y}px)`;
-      transformedImg.style.transformOrigin = 'center';
+    // Apply background color if needed
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Append the img to the container
-      container.appendChild(transformedImg);
+    // Calculate the position and size of the image within the canvas
+    const containerAspectRatio = canvas.width / canvas.height;
+    const imageAspectRatio = imageRef.current.naturalWidth / imageRef.current.naturalHeight;
 
-      // Use html2canvas to create an image from our container
-      import('html2canvas').then((html2canvas) => {
-        html2canvas
-          .default(container, {
-            backgroundColor: null,
-            scale: 2, // Increase this for higher resolution
-          })
-          .then((canvas) => {
-            // Convert canvas to blob
-            canvas.toBlob((blob) => {
-              if (blob) {
-                // Create a temporary URL for the blob
-                const url = URL.createObjectURL(blob);
+    let drawWidth, drawHeight, drawX, drawY;
 
-                // Create download link
-                const link = document.createElement('a');
-                link.download = 'edited_image.png';
-                link.href = url;
-                link.click();
+    if (containerAspectRatio > imageAspectRatio) {
+      drawHeight = canvas.height;
+      drawWidth = drawHeight * imageAspectRatio;
+      drawX = (canvas.width - drawWidth) / 2;
+      drawY = 0;
+    } else {
+      drawWidth = canvas.width;
+      drawHeight = drawWidth / imageAspectRatio;
+      drawX = 0;
+      drawY = (canvas.height - drawHeight) / 2;
+    }
 
-                // Clean up the temporary URL
-                setTimeout(() => URL.revokeObjectURL(url), 100);
-              }
-            }, 'image/png');
-          });
-      });
-    };
+    // Apply transformations
+    ctx.save();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate((rotation * Math.PI) / 180);
+    ctx.scale(adjustedZoom, adjustedZoom);
+    ctx.translate(-canvas.width / 2 + pan.x, -canvas.height / 2 + pan.y);
+
+    // Draw the image
+    ctx.drawImage(imageRef.current, drawX, drawY, drawWidth, drawHeight);
+
+    // Restore context
+    ctx.restore();
+
+    // Apply filters
+    ctx.filter = `brightness(${brightness + 1}) contrast(${contrast + 1}) saturate(${exposure + 1})`;
+    ctx.drawImage(canvas, 0, 0);
+
+    // Create download link
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = 'edited_image.png';
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+      }
+    }, 'image/png');
   };
 
   // Add these state variables for initial values
