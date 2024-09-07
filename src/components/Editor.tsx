@@ -374,17 +374,19 @@ const Editor: React.FC<EditorProps> = ({
     ctx.filter = `brightness(${brightness + 1}) contrast(${contrast + 1}) saturate(${exposure + 1})`;
     ctx.drawImage(canvas, 0, 0);
 
-    // Create download link
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.download = 'edited_image.png';
-        link.href = url;
-        link.click();
-        URL.revokeObjectURL(url);
-      }
-    }, 'image/png');
+    // Create download link using toDataURL
+    try {
+      const dataUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = 'edited_image.png';
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error creating download link:', error);
+      // Optionally, you can show an error message to the user here
+    }
   };
 
   // Add these state variables for initial values
