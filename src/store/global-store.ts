@@ -68,11 +68,7 @@ export interface AppStore {
   setCanvas: (value: HTMLCanvasElement) => void;
   gl?: WebGL;
   startGlTexture: WebGLTexture | null;
-  getUniformValues: () => [
-    WebGLTexture | null,
-    { brightness: number; contrast: number },
-    { exposure: number },
-  ];
+  getUniformValues: () => Record<string, number>[];
   shaderOnMount: () => void;
   render: () => void;
   onAttributeChange: () => void;
@@ -152,13 +148,14 @@ export const useGlobalStore = create<AppStore>()((set, get) => ({
     const { brightness, contrast, exposure } = get();
 
     return [
-      /**
-       * Texture
-       */
-      null,
-      { brightness, contrast },
-      { exposure },
-    ];
+      {},
+      { u_brightness: brightness, u_contrast: contrast },
+      { u_exposure: exposure },
+    ].map((obj) =>
+      Object.fromEntries(
+        Object.entries(obj).map(([key, value]) => [key, Number(value) || 0])
+      )
+    );
   },
   throwGlError(error: string = 'Something went wrong') {
     set({ webGlError: error });

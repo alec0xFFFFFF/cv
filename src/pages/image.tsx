@@ -45,7 +45,7 @@ export default function ImageDisplay() {
         <>
           <Image
             src={imageInfo.url}
-            alt={filename || 'Fullscreen image'}
+            alt={typeof filename === 'string' ? filename : 'Fullscreen image'}
             style={{ width: '100%', height: '100%', objectFit: 'contain' }}
             width={100}
             height={100}
@@ -70,8 +70,13 @@ export default function ImageDisplay() {
       ) : (
         <p>No image URL available</p>
       )}
-      {isEditorOpen && (
-        <Editor photo={imageInfo?.photoInfo} onClose={handleCloseEditor} />
+      {isEditorOpen && imageInfo?.photoInfo && (
+        <Editor
+          photo={imageInfo.photoInfo}
+          onClose={handleCloseEditor}
+          onRegradeEdit={() => {}}
+          onSubmitEdit={() => {}}
+        />
       )}
     </div>
   );
