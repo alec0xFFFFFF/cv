@@ -7,6 +7,8 @@ import { ImageGrid } from '@/components/ImageGrid';
 import Editor from '@/components/Editor';
 import { Photo } from '@/components/types';
 import '../app/globals.css';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Switch } from '@/components/ui/switch';
 
 interface ApiResponse {
   images: Photo[];
@@ -46,6 +48,10 @@ export default function PhotoGallery() {
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [searchTriggered, setSearchTriggered] = useState(false);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [sortMode, setSortMode] = useState<'search' | 'rating' | 'date'>(
+    'search'
+  );
+  const [sortDescending, setSortDescending] = useState(true);
 
   useEffect(() => {
     const randomTerm =
@@ -76,7 +82,8 @@ export default function PhotoGallery() {
   );
 
   const fetchPhotos = useCallback(async () => {
-    if (loading || debouncedSearchTerm.trim() === '') return;
+    if (loading || (sortMode === 'search' && debouncedSearchTerm.trim() === ''))
+      return;
 
     setLoading(true);
     if (offset === 1) {
@@ -85,11 +92,25 @@ export default function PhotoGallery() {
     const params = new URLSearchParams({
       offset: offset.toString(),
       page_size: '20',
-      query: debouncedSearchTerm.trim(),
+      sort_descending: sortDescending.toString(),
     });
 
+    let url = '/api/';
+    switch (sortMode) {
+      case 'search':
+        url += 'search';
+        params.append('query', debouncedSearchTerm.trim());
+        break;
+      case 'rating':
+        url += 'photos-by-rating';
+        break;
+      case 'date':
+        url += 'photos-by-date';
+        break;
+    }
+
     try {
-      const response = await fetch(`/api/search?${params}`);
+      const response = await fetch(`${url}?${params}`);
       const data: ApiResponse = await response.json();
 
       if (data.images.length === 0) {
@@ -108,10 +129,15 @@ export default function PhotoGallery() {
       setInitialLoading(false);
       setSearchLoading(false);
     }
-  }, [offset, debouncedSearchTerm, loading]);
+  }, [offset, debouncedSearchTerm, loading, sortMode, sortDescending]);
 
   useEffect(() => {
-    if (debouncedSearchTerm.trim() !== '' && searchTriggered) {
+    if (
+      (sortMode === 'search' &&
+        debouncedSearchTerm.trim() !== '' &&
+        searchTriggered) ||
+      (sortMode !== 'search' && offset === 1)
+    ) {
       setOffset(1);
       setPhotos([]);
       setHasMore(true);
@@ -120,7 +146,7 @@ export default function PhotoGallery() {
     } else {
       setInitialLoading(false);
     }
-  }, [debouncedSearchTerm, fetchPhotos, searchTriggered]);
+  }, [debouncedSearchTerm, fetchPhotos, searchTriggered, sortMode]);
 
   useEffect(() => {
     if (inView && !loading && hasMore && !searchTriggered) {
@@ -168,6 +194,20 @@ export default function PhotoGallery() {
     console.log('Regrading edit');
   }, []);
 
+  const handleSortModeChange = useCallback((value: string) => {
+    setSortMode(value as 'search' | 'rating' | 'date');
+    setOffset(1);
+    setPhotos([]);
+    setHasMore(true);
+  }, []);
+
+  const handleSortDirectionChange = useCallback((checked: boolean) => {
+    setSortDescending(checked);
+    setOffset(1);
+    setPhotos([]);
+    setHasMore(true);
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
       <PhotoGalleryHeader
@@ -176,6 +216,27 @@ export default function PhotoGallery() {
         searchTerm={searchTerm}
       />
       <main className="flex-grow container mx-auto px-4 py-8">
+        <div className="mb-4 flex items-center justify-between">
+          <ToggleGroup
+            type="single"
+            value={sortMode}
+            onValueChange={handleSortModeChange}
+          >
+            <ToggleGroupItem value="search">Search</ToggleGroupItem>
+            <ToggleGroupItem value="rating">Sort by Rating</ToggleGroupItem>
+            <ToggleGroupItem value="date">Sort by Date</ToggleGroupItem>
+          </ToggleGroup>
+          {sortMode !== 'search' && (
+            <div className="flex items-center space-x-2">
+              <span>Ascending</span>
+              <Switch
+                checked={sortDescending}
+                onCheckedChange={handleSortDirectionChange}
+              />
+              <span>Descending</span>
+            </div>
+          )}
+        </div>
         {initialLoading ? (
           <div className="flex justify-center items-center h-64">
             <Icon name="loader" className="animate-spin w-8 h-8" />
@@ -193,7 +254,9 @@ export default function PhotoGallery() {
               </div>
             ) : (
               <div className="text-center text-gray-500 mt-8">
-                No results found. Try a different search term.
+                {sortMode === 'search'
+                  ? 'No results found. Try a different search term.'
+                  : 'No photos found.'}
               </div>
             )}
             {hasMore && !searchLoading && (

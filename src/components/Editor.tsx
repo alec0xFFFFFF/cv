@@ -341,7 +341,8 @@ const Editor: React.FC<EditorProps> = ({
 
     // Calculate the position and size of the image within the canvas
     const containerAspectRatio = canvas.width / canvas.height;
-    const imageAspectRatio = imageRef.current.naturalWidth / imageRef.current.naturalHeight;
+    const imageAspectRatio =
+      imageRef.current.naturalWidth / imageRef.current.naturalHeight;
 
     let drawWidth, drawHeight, drawX, drawY;
 
