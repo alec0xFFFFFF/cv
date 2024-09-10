@@ -197,12 +197,26 @@ export default function PhotoUpload() {
     }
   };
 
+  const handleNewFilesDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const droppedFiles = Array.from(e.dataTransfer.files);
+      handleUpload(droppedFiles);
+    },
+    [handleUpload]
+  );
+
   return (
     <div className="min-h-screen flex flex-col">
       <PhotoGalleryHeader
         onSearch={() => {}}
         currentPage="photo-upload"
         searchTerm=""
+        sortMode="date"
+        onSortModeChange={() => {}}
+        sortDescending={true}
+        onSortDirectionChange={() => {}}
       />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
@@ -268,45 +282,52 @@ export default function PhotoUpload() {
               <div className="space-y-4 mb-4">
                 {Object.entries(metadata).map(([key, value]) => (
                   <div key={key}>
-                    <label
-                      htmlFor={key}
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      {key.replace('_', ' ').charAt(0).toUpperCase() +
-                        key.replace('_', ' ').slice(1)}
-                    </label>
-                    {['camera', 'lens', 'film_stock', 'film_format'].includes(
-                      key
-                    ) ? (
-                      <select
-                        name={key}
-                        id={key}
-                        value={value}
-                        onChange={handleMetadataChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                      >
-                        {(key === 'camera'
-                          ? cameraOptions
-                          : key === 'lens'
-                            ? lensOptions
-                            : key === 'film_stock'
-                              ? filmStockOptions
-                              : filmFormatOptions
-                        ).map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <input
-                        type={key === 'date' ? 'date' : 'text'}
-                        name={key}
-                        id={key}
-                        value={value}
-                        onChange={handleMetadataChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                      />
+                    {key !== 'password' && ( // Skip rendering password field here
+                      <>
+                        <label
+                          htmlFor={key}
+                          className="block text-sm font-medium text-gray-700"
+                        >
+                          {key.replace('_', ' ').charAt(0).toUpperCase() +
+                            key.replace('_', ' ').slice(1)}
+                        </label>
+                        {[
+                          'camera',
+                          'lens',
+                          'film_stock',
+                          'film_format',
+                        ].includes(key) ? (
+                          <select
+                            name={key}
+                            id={key}
+                            value={value}
+                            onChange={handleMetadataChange}
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          >
+                            {(key === 'camera'
+                              ? cameraOptions
+                              : key === 'lens'
+                                ? lensOptions
+                                : key === 'film_stock'
+                                  ? filmStockOptions
+                                  : filmFormatOptions
+                            ).map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            type={key === 'date' ? 'date' : 'text'}
+                            name={key}
+                            id={key}
+                            value={value}
+                            onChange={handleMetadataChange}
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          />
+                        )}
+                      </>
                     )}
                   </div>
                 ))}
@@ -407,21 +428,32 @@ export default function PhotoUpload() {
                   )}
                 </div>
               ))}
-              <Button
-                onClick={() => fileInputRef.current?.click()}
-                className="mt-4"
-                disabled={uploading}
+              <div
+                onDragEnter={onDragEnter}
+                onDragLeave={onDragLeave}
+                onDragOver={onDragOver}
+                onDrop={handleNewFilesDrop}
+                className={`mt-4 border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                  isDragging
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
               >
-                Upload Another
-              </Button>
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handleFileSelect}
-                className="hidden"
-                ref={fileInputRef}
-              />
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  ref={fileInputRef}
+                />
+                <label htmlFor="fileInput" className="cursor-pointer">
+                  <Upload className="mx-auto h-8 w-8 text-gray-400" />
+                  <p className="mt-2 text-sm text-gray-600">
+                    Drag and drop more images here, or click to select files
+                  </p>
+                </label>
+              </div>
             </div>
           )}
         </div>

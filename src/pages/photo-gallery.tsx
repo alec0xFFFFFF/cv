@@ -7,8 +7,6 @@ import { ImageGrid } from '@/components/ImageGrid';
 import Editor from '@/components/Editor';
 import { Photo } from '@/components/types';
 import '../app/globals.css';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Switch } from '@/components/ui/switch';
 
 interface ApiResponse {
   images: Photo[];
@@ -38,7 +36,6 @@ export default function PhotoGallery() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [searchLoading, setSearchLoading] = useState(false);
   const [ref, inView] = useInView({
     threshold: 0,
     rootMargin: '200px',
@@ -49,10 +46,11 @@ export default function PhotoGallery() {
   const [searchTriggered, setSearchTriggered] = useState(false);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [sortMode, setSortMode] = useState<'search' | 'rating' | 'date'>(
-    'search'
+    'date'
   );
   const [sortDescending, setSortDescending] = useState(true);
   const [sortModeChanging, setSortModeChanging] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const randomTerm =
@@ -87,9 +85,8 @@ export default function PhotoGallery() {
       return;
 
     setLoading(true);
-    if (offset === 1) {
-      setSearchLoading(true);
-    }
+    setIsLoading(true);
+
     const params = new URLSearchParams({
       offset: offset.toString(),
       page_size: '20',
@@ -114,21 +111,18 @@ export default function PhotoGallery() {
       const response = await fetch(`${url}?${params}`);
       const data: ApiResponse = await response.json();
 
-      if (data.images.length === 0) {
-        setHasMore(false);
-      } else {
-        setPhotos((prevPhotos) =>
-          offset === 1 ? data.images : [...prevPhotos, ...data.images]
-        );
-        setOffset((prevOffset) => prevOffset + data.pagination.page_size);
-        setHasMore(data.pagination.has_more);
-      }
+      setPhotos((prevPhotos) =>
+        offset === 1 ? data.images : [...prevPhotos, ...data.images]
+      );
+      // Update the offset based on the response
+      setOffset(data.pagination.offset + data.pagination.page_size);
+      setHasMore(data.pagination.has_more);
     } catch (error) {
       console.error('Error fetching photos:', error);
     } finally {
       setLoading(false);
       setInitialLoading(false);
-      setSearchLoading(false);
+      setIsLoading(false);
     }
   }, [offset, debouncedSearchTerm, loading, sortMode, sortDescending]);
 
@@ -217,29 +211,12 @@ export default function PhotoGallery() {
         onSearch={handleSearchWithTracking}
         currentPage="photo-gallery"
         searchTerm={searchTerm}
+        sortMode={sortMode}
+        onSortModeChange={handleSortModeChange}
+        sortDescending={sortDescending}
+        onSortDirectionChange={handleSortDirectionChange}
       />
       <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="mb-4 flex items-center justify-between">
-          <ToggleGroup
-            type="single"
-            value={sortMode}
-            onValueChange={handleSortModeChange}
-          >
-            <ToggleGroupItem value="search">Search</ToggleGroupItem>
-            <ToggleGroupItem value="rating">Sort by Rating</ToggleGroupItem>
-            <ToggleGroupItem value="date">Sort by Date</ToggleGroupItem>
-          </ToggleGroup>
-          {sortMode !== 'search' && (
-            <div className="flex items-center space-x-2">
-              <span>Ascending</span>
-              <Switch
-                checked={sortDescending}
-                onCheckedChange={handleSortDirectionChange}
-              />
-              <span>Descending</span>
-            </div>
-          )}
-        </div>
         {initialLoading ? (
           <div className="flex justify-center items-center h-64">
             <Icon name="loader" className="animate-spin w-8 h-8" />
@@ -252,37 +229,31 @@ export default function PhotoGallery() {
               </div>
             ) : (
               <>
-                {searchLoading ? (
-                  <div className="flex flex-col justify-center items-center h-64">
-                    <Icon
-                      name="loader"
-                      className="animate-spin w-12 h-12 mb-4"
-                    />
-                    <p className="text-gray-600">Searching...</p>
-                  </div>
-                ) : photos.length > 0 ? (
+                {photos.length > 0 && (
                   <div className="min-h-screen bg-gray-100 py-4 px-4">
                     <ImageGrid
                       photos={photos}
                       onImageClick={handleImageClick}
                     />
                   </div>
-                ) : (
+                )}
+                {(isLoading || loading) && (
+                  <div className="flex justify-center items-center h-20 mt-4">
+                    <Icon name="loader" className="animate-spin w-8 h-8" />
+                  </div>
+                )}
+                {!isLoading && !loading && photos.length === 0 && (
                   <div className="text-center text-gray-500 mt-8">
                     {sortMode === 'search'
                       ? 'No results found. Try a different search term.'
                       : 'No photos found.'}
                   </div>
                 )}
-                {hasMore && !searchLoading && (
+                {hasMore && !isLoading && !loading && (
                   <div
                     ref={ref}
                     className="h-20 flex items-center justify-center"
-                  >
-                    {loading && (
-                      <Icon name="loader" className="animate-spin w-8 h-8" />
-                    )}
-                  </div>
+                  />
                 )}
                 {!hasMore && photos.length > 0 && (
                   <div className="text-center text-gray-500 mt-8 mb-4">
