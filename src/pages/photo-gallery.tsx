@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Icon } from '@/components/ui/icon';
 import { useInView } from 'react-intersection-observer';
 import { PhotoGalleryHeader } from '@/components/PhotoGalleryHeader';
-import { FullscreenImage } from '@/components/fullscreen-image';
-import { ImageGrid } from '@/components/image-grid';
-import Editor from '@/components/editor';
+import { FullscreenImage } from '@/components/FullscreenImage';
+import { ImageGrid } from '@/components/ImageGrid';
+import Editor from '@/components/Editor';
 import { Photo } from '@/components/types';
 import '../app/globals.css';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
@@ -83,7 +83,8 @@ export default function PhotoGallery() {
   );
 
   const fetchPhotos = useCallback(async () => {
-    if (loading || (sortMode === 'search' && debouncedSearchTerm.trim() === '')) return;
+    if (loading || (sortMode === 'search' && debouncedSearchTerm.trim() === ''))
+      return;
 
     setLoading(true);
     if (offset === 1) {
@@ -95,7 +96,7 @@ export default function PhotoGallery() {
       sort_descending: sortDescending.toString(),
     });
 
-    let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/`;
+    let url = '/api/';
     switch (sortMode) {
       case 'search':
         url += 'search';
@@ -124,24 +125,24 @@ export default function PhotoGallery() {
       }
     } catch (error) {
       console.error('Error fetching photos:', error);
-      setHasMore(false);
     } finally {
       setLoading(false);
       setInitialLoading(false);
       setSearchLoading(false);
-      setSortModeChanging(false);
     }
   }, [offset, debouncedSearchTerm, loading, sortMode, sortDescending]);
 
   useEffect(() => {
     if (
-      (sortMode === 'search' && debouncedSearchTerm.trim() !== '' && searchTriggered) ||
+      (sortMode === 'search' &&
+        debouncedSearchTerm.trim() !== '' &&
+        searchTriggered) ||
       (sortMode !== 'search' && offset === 1)
     ) {
       setOffset(1);
       setPhotos([]);
       setHasMore(true);
-      fetchPhotos();
+      fetchPhotos().then(() => setSortModeChanging(false));
       setSearchTriggered(false);
     } else {
       setInitialLoading(false);
@@ -150,10 +151,10 @@ export default function PhotoGallery() {
   }, [debouncedSearchTerm, fetchPhotos, searchTriggered, sortMode]);
 
   useEffect(() => {
-    if (inView && !loading && hasMore) {
+    if (inView && !loading && hasMore && !searchTriggered) {
       fetchPhotos();
     }
-  }, [inView, fetchPhotos, loading, hasMore]);
+  }, [inView, fetchPhotos, loading, hasMore, searchTriggered]);
 
   const handleImageClick = useCallback((photo: Photo) => {
     setSelectedPhoto(photo);
@@ -201,7 +202,6 @@ export default function PhotoGallery() {
     setPhotos([]);
     setHasMore(true);
     setSortModeChanging(true);
-    setSearchTriggered(true); // Add this line
   }, []);
 
   const handleSortDirectionChange = useCallback((checked: boolean) => {
@@ -209,7 +209,6 @@ export default function PhotoGallery() {
     setOffset(1);
     setPhotos([]);
     setHasMore(true);
-    setSearchTriggered(true); // Add this line
   }, []);
 
   return (

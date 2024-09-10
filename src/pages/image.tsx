@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import Editor from '@/components/editor';
+import Editor from '@/components/Editor';
 import { Photo } from '@/components/types';
 
 interface ImageInfo {

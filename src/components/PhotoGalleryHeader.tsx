@@ -1,6 +1,6 @@
 import React from 'react';
 import { Search } from 'lucide-react';
-import { Navigation } from './navigation';
+import { Navigation } from './Navigation';
 
 interface PhotoGalleryHeaderProps {
   onSearch: (value: string) => void;
