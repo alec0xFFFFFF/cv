@@ -3,7 +3,7 @@ import { Search } from 'lucide-react';
 import { Navigation } from './Navigation';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Switch } from '@/components/ui/switch';
-import { cn } from '@/lib/utils'; // Make sure to import the cn utility function
+import { cn } from '@/lib/utils';
 
 interface PhotoGalleryHeaderProps {
   onSearch: (value: string) => void;
@@ -37,21 +37,24 @@ export const PhotoGalleryHeader: React.FC<PhotoGalleryHeaderProps> = ({
               <ToggleGroup
                 type="single"
                 value={sortMode}
-                onValueChange={(value) => onSortModeChange(value as string)}
-                className="inline-flex bg-gray-100 rounded-lg p-1"
+                onValueChange={(value: string) =>
+                  onSortModeChange(value as string)
+                }
               >
-                {['search', 'rating', 'date'].map((value) => (
-                  <ToggleGroupItem
-                    key={value}
-                    value={value}
-                    className={cn(
-                      "px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200",
-                      "data-[state=on]:bg-white data-[state=on]:shadow-sm"
-                    )}
-                  >
-                    {value === 'search' ? 'Search' : value === 'rating' ? 'By Rating' : 'By Date'}
-                  </ToggleGroupItem>
-                ))}
+                <div className="inline-flex bg-gray-100 rounded-lg p-1">
+                  {['search', 'rating', 'date'].map((value) => (
+                    <ToggleGroupItem key={value} value={value}>
+                      <div
+                        className={cn(
+                          'px-3 py-2 text-sm font-medium text-gray-700 hover:bg-white hover:text-gray-900 focus:z-10 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75',
+                          sortMode === value && 'bg-white text-gray-900'
+                        )}
+                      >
+                        {value.charAt(0).toUpperCase() + value.slice(1)}
+                      </div>
+                    </ToggleGroupItem>
+                  ))}
+                </div>
               </ToggleGroup>
             </div>
             <div className="w-full sm:w-auto flex-grow sm:max-w-md">
@@ -85,7 +88,6 @@ export const PhotoGalleryHeader: React.FC<PhotoGalleryHeaderProps> = ({
                 <Switch
                   checked={sortDescending}
                   onCheckedChange={onSortDirectionChange}
-                  className="data-[state=checked]:bg-blue-600"
                 />
                 <span className="text-sm font-medium text-gray-700">
                   Descending
