@@ -3,6 +3,7 @@ import { Search } from 'lucide-react';
 import { Navigation } from './Navigation';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Switch } from '@/components/ui/switch';
+import { cn } from '@/lib/utils'; // Make sure to import the cn utility function
 
 interface PhotoGalleryHeaderProps {
   onSearch: (value: string) => void;
@@ -36,27 +37,21 @@ export const PhotoGalleryHeader: React.FC<PhotoGalleryHeaderProps> = ({
               <ToggleGroup
                 type="single"
                 value={sortMode}
-                onValueChange={onSortModeChange}
+                onValueChange={(value) => onSortModeChange(value as string)}
                 className="inline-flex bg-gray-100 rounded-lg p-1"
               >
-                <ToggleGroupItem
-                  value="search"
-                  className="px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                >
-                  Search
-                </ToggleGroupItem>
-                <ToggleGroupItem
-                  value="rating"
-                  className="px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                >
-                  By Rating
-                </ToggleGroupItem>
-                <ToggleGroupItem
-                  value="date"
-                  className="px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                >
-                  By Date
-                </ToggleGroupItem>
+                {['search', 'rating', 'date'].map((value) => (
+                  <ToggleGroupItem
+                    key={value}
+                    value={value}
+                    className={cn(
+                      "px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200",
+                      "data-[state=on]:bg-white data-[state=on]:shadow-sm"
+                    )}
+                  >
+                    {value === 'search' ? 'Search' : value === 'rating' ? 'By Rating' : 'By Date'}
+                  </ToggleGroupItem>
+                ))}
               </ToggleGroup>
             </div>
             <div className="w-full sm:w-auto flex-grow sm:max-w-md">

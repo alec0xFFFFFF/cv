@@ -22,7 +22,7 @@ export function ImageGrid({ photos, onImageClick }: ImageGridProps) {
     return () => window.removeEventListener('resize', updateColumns);
   }, []);
 
-  const columnPhotos = Array.from({ length: columns }, () => []);
+  const columnPhotos: Photo[][] = Array.from({ length: columns }, () => []);
   photos.forEach((photo, index) => {
     columnPhotos[index % columns].push(photo);
   });
