@@ -52,6 +52,7 @@ export default function PhotoGallery() {
     'search'
   );
   const [sortDescending, setSortDescending] = useState(true);
+  const [sortModeChanging, setSortModeChanging] = useState(false);
 
   useEffect(() => {
     const randomTerm =
@@ -141,10 +142,11 @@ export default function PhotoGallery() {
       setOffset(1);
       setPhotos([]);
       setHasMore(true);
-      fetchPhotos();
+      fetchPhotos().then(() => setSortModeChanging(false));
       setSearchTriggered(false);
     } else {
       setInitialLoading(false);
+      setSortModeChanging(false);
     }
   }, [debouncedSearchTerm, fetchPhotos, searchTriggered, sortMode]);
 
@@ -199,6 +201,7 @@ export default function PhotoGallery() {
     setOffset(1);
     setPhotos([]);
     setHasMore(true);
+    setSortModeChanging(true);
   }, []);
 
   const handleSortDirectionChange = useCallback((checked: boolean) => {
@@ -243,33 +246,50 @@ export default function PhotoGallery() {
           </div>
         ) : (
           <>
-            {searchLoading ? (
-              <div className="flex flex-col justify-center items-center h-64">
-                <Icon name="loader" className="animate-spin w-12 h-12 mb-4" />
-                <p className="text-gray-600">Searching...</p>
-              </div>
-            ) : photos.length > 0 ? (
-              <div className="min-h-screen bg-gray-100 py-4 px-4">
-                <ImageGrid photos={photos} onImageClick={handleImageClick} />
+            {sortModeChanging ? (
+              <div className="flex justify-center items-center h-64">
+                <Icon name="loader" className="animate-spin w-8 h-8" />
               </div>
             ) : (
-              <div className="text-center text-gray-500 mt-8">
-                {sortMode === 'search'
-                  ? 'No results found. Try a different search term.'
-                  : 'No photos found.'}
-              </div>
-            )}
-            {hasMore && !searchLoading && (
-              <div ref={ref} className="h-20 flex items-center justify-center">
-                {loading && (
-                  <Icon name="loader" className="animate-spin w-8 h-8" />
+              <>
+                {searchLoading ? (
+                  <div className="flex flex-col justify-center items-center h-64">
+                    <Icon
+                      name="loader"
+                      className="animate-spin w-12 h-12 mb-4"
+                    />
+                    <p className="text-gray-600">Searching...</p>
+                  </div>
+                ) : photos.length > 0 ? (
+                  <div className="min-h-screen bg-gray-100 py-4 px-4">
+                    <ImageGrid
+                      photos={photos}
+                      onImageClick={handleImageClick}
+                    />
+                  </div>
+                ) : (
+                  <div className="text-center text-gray-500 mt-8">
+                    {sortMode === 'search'
+                      ? 'No results found. Try a different search term.'
+                      : 'No photos found.'}
+                  </div>
                 )}
-              </div>
-            )}
-            {!hasMore && photos.length > 0 && (
-              <div className="text-center text-gray-500 mt-8 mb-4">
-                No more photos to load.
-              </div>
+                {hasMore && !searchLoading && (
+                  <div
+                    ref={ref}
+                    className="h-20 flex items-center justify-center"
+                  >
+                    {loading && (
+                      <Icon name="loader" className="animate-spin w-8 h-8" />
+                    )}
+                  </div>
+                )}
+                {!hasMore && photos.length > 0 && (
+                  <div className="text-center text-gray-500 mt-8 mb-4">
+                    No more photos to load.
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
